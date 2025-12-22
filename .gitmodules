@@ -1,0 +1,6 @@
+[submodule "User/Lib/elapsedTimer"]
+	path = User/Lib/elapsedTimer
+	url = git@github.com:SatoshiRC/elapsedTimer.git
+[submodule "User/Lib/ICM20948"]
+	path = User/Lib/ICM20948
+	url = git@github.com:SatoshiRC/ICM20948.git
