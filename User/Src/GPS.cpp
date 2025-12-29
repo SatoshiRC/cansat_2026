@@ -7,7 +7,7 @@
 
 #include <GPS.h>
 
-GPS::GPS(State *state = new State, NMEAProcessor *nmeaProcessor = new NMEAProcessor, UART_HandleTypeDef *huart = &huart2)
+GPS::GPS(SensorState *state, NMEAProcessor *nmeaProcessor, UART_HandleTypeDef *huart)
 :state(state), nmeaProcessor(nmeaProcessor), huart(huart){
 
 }
@@ -18,6 +18,9 @@ void GPS::startReceive(){
 
 void GPS::onReceive(){
 	uint16_t rxCount = huart->RxXferCount;
-	std::vector<uint8_t> rMessage(rxCount, rBuffer);
+	std::vector<uint8_t> rMessage(rBuffer.begin(), rBuffer.begin()+rxCount);
 	nmeaProcessor->onReceive(rMessage);
+	if(nmeaProcessor->isLastFrameValid()){
+		*state = SENSOR_STATE::Normal;
+	}
 }

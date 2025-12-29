@@ -9,25 +9,29 @@
 #define INC_MODEBASE_H_
 
 #include "State.h"
+#include "GPS.h"
 
 enum class MODE{
-	IDLE,
+	Invalid,
+	WAKE_UP,
 	READY,
 	DECENT,
-	LAND,
+	LANDING,
 	RELATIVE_NAVIGATION,
 	ABSOLUTE_NAVIGATION,
-	GOAL
+	GOAL,
+	REMOTE_CONTROL,
 };
 
 class ModeBase {
-	MODE mode;
-	State *state;
+	const MODE mode;
+	MODE nextMode;
 public:
-	ModeBase(State *state = new State, MODE mode);
-	virtual void execution() = 0;
-
-
+	ModeBase(MODE mode = MODE::Invalid);
+	virtual MODE execution() = 0;
+	void onGpsUpdate(const NEDPosition &position){};
+	void onImuUpdate(){};
+	void onAltitudeUpdate(const uint16_t altitude){};
 };
 
 #endif /* INC_MODEBASE_H_ */

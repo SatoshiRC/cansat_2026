@@ -9,6 +9,7 @@ NMEAProcessor::NMEAProcessor() : referenceSet_(false) {
     referencePoint_.longitude = 0.0;
     referencePoint_.altitude = 0.0;
     referencePoint_.valid = false;
+    _isLastFrameValid = false;
 }
 
 NMEAProcessor::~NMEAProcessor() {
@@ -28,6 +29,7 @@ void NMEAProcessor::setReferencePoint(const GPSPosition& reference) {
 }
 
 void NMEAProcessor::onReceive(const std::vector<uint8_t>& nmeaFrame) {
+	_isLastFrameValid = false;
     if (nmeaFrame.empty() || nmeaFrame[0] != '$') {
         return; // 無効なNMEAフレーム
     }
@@ -51,6 +53,8 @@ void NMEAProcessor::onReceive(const std::vector<uint8_t>& nmeaFrame) {
         if (positionCallback_) {
             positionCallback_(nedPos);
         }
+
+        _isLastFrameValid = true;
     }
 }
 

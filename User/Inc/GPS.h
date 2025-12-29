@@ -17,14 +17,14 @@
 #include "State.h"
 
 class GPS {
-	State *state;
+	SensorState *state;
 	NMEAProcessor *nmeaProcessor;
 	UART_HandleTypeDef *huart;
 
 	std::array<uint8_t, 100> rBuffer;
 	std::function<void(NEDPosition)> nedPositionHandler;
 public:
-	GPS(State *state = new State, NMEAProcessor *nmeaProcessor = new NMEAProcessor, UART_HandleTypeDef *huart = &huart2);
+	GPS(SensorState *state = nullptr, NMEAProcessor *nmeaProcessor = nullptr, UART_HandleTypeDef *huart = &huart2);
 	void startReceive();
 	void onReceive();
 

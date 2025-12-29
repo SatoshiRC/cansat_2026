@@ -96,17 +96,17 @@ void LPS25HB::setOffset(float offset_hPa) {
   writeData(static_cast<uint8_t>(LPS25HB_REG::RPDS_H), static_cast<uint8_t>((ldata >> 16) & 0xFF));
 }
 
-void LPS25HB::writeData(uint8_t reg, uint8_t data) {
-  wire->beginTransmission(address);
-  wire->write(reg);
-  wire->write(data);
-  wire->endTransmission();
-}
-
-uint8_t LPS25HB::readData(uint8_t reg) {
-  wire->beginTransmission(address);
-  wire->write(reg);
-  wire->endTransmission(false);
-  wire->requestFrom(address, (uint8_t)1);
-  return wire->read();
-}
+//void LPS25HB::writeData(uint8_t reg, uint8_t data) {
+//  wire->beginTransmission(address);
+//  wire->write(reg);
+//  wire->write(data);
+//  wire->endTransmission();
+//}
+//
+//uint8_t LPS25HB::readData(uint8_t reg) {
+//  wire->beginTransmission(address);
+//  wire->write(reg);
+//  wire->endTransmission(false);
+//  wire->requestFrom(address, (uint8_t)1);
+//  return wire->read();
+//}

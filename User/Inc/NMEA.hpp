@@ -54,6 +54,9 @@ public:
     
     // NMEAフレームを受信して処理
     void onReceive(const std::vector<uint8_t>& nmeaFrame);
+    bool isLastFrameValid(){
+    	return _isLastFrameValid;
+    }
     
     // コールバック関数を設定（NEDポジションが更新された時に呼ばれる）
     void setPositionCallback(std::function<void(const NEDPosition&)> callback);
@@ -66,6 +69,7 @@ public:
 
 private:
     std::function<void(const NEDPosition&)> positionCallback_;
+    bool _isLastFrameValid;
 };
 
 #endif // NMEA_HPP

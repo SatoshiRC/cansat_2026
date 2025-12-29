@@ -13,9 +13,20 @@
 #include "ModeBase.h"
 
 class ModeHandler {
-	std::array<*ModeBase, 8> modeHandlers;
+	std::array<ModeBase*, 9> modeHandlers;
+	MODE activeMode;
 public:
 	ModeHandler();
+	void executeInloop();
+	void onGpsUpdate(const NEDPosition &position){};
+	void onImuUpdate(){};
+	void onAltitudeUpdate(const float altitude){};
+
+	void registerMode(MODE id, ModeBase *mode);
+	void setMode(MODE mode);
+	MODE getActiveMode(){
+		return activeMode;
+	}
 };
 
 #endif /* INC_MODEHANDLER_H_ */

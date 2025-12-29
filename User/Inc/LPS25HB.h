@@ -2,6 +2,8 @@
 
 using namespace std;
 
+#include <cstdint>
+
 class LPS25HB {
  public:
   LPS25HB();
@@ -33,7 +35,7 @@ class LPS25HB {
 	  High = 0x5d
   };
 
-  bool begin(LPS25HB_Address SA0, TwoWire *wire = &Wire,
+  bool begin(LPS25HB_Address SA0,
              LPS25HB_FIFO_MODE fifoMode = LPS25HB_FIFO_MODE::FIFO_MEAN_MODE_x32,
              LPS25HB_RATE rate = LPS25HB_RATE::F25Hz);
   float getPressure(void);
@@ -49,7 +51,6 @@ class LPS25HB {
   virtual uint8_t readData(uint8_t reg) = 0;
 
   uint8_t address;
-  TwoWire *wire;
 };
 
 class LPS25HB_STM32_HAL: public LPS25HB{

@@ -7,8 +7,10 @@
 
 #include <State.h>
 
-State::State() {
-	// TODO Auto-generated constructor stub
-
+bool operator==(SensorState first, SENSOR_STATE second){
+	return first.state == second;
 }
 
+bool operator==(ActuatorState first, ACTUATOR_STATE second){
+	return first.state == second;
+}
