@@ -7,16 +7,16 @@
 
 #include <ServoGripper.h>
 
-ServoGripper::ServoGripper(ActuatorState *state, TIM_HandleTypeDef *htim, uint32_t channel, uint32_t releaseCount, uint32_t gripCount)
+ServoGripper::ServoGripper(ActuatorState *state, TIM_HandleTypeDef *htim, uint32_t channel, uint16_t releaseCount, uint16_t gripCount)
 :state(state), htim(htim), channel(channel),releaseCount(releaseCount),gripCount(gripCount){};
 
 void ServoGripper::enable(){
-	state = ACTUATOR_STATE::Active;
+	*state = ACTUATOR_STATE::Active;
 	HAL_TIM_PWM_Start(htim, channel);
 }
 
 void ServoGripper::disable(){
-	state = ACTUATOR_STATE::Disabled;
+	*state = ACTUATOR_STATE::Disabled;
 	HAL_TIM_PWM_Stop(htim, channel);
 }
 
@@ -38,16 +38,16 @@ uint16_t ServoGripper::getGripCount(){
 }
 
 void ServoGripper::release(){
-	state = ACTUATOR_STATE::Active;
+	*state = ACTUATOR_STATE::Active;
 	__HAL_TIM_SET_COMPARE(htim, channel, releaseCount);
 }
 void ServoGripper::grip(){
-	state = ACTUATOR_STATE::Active;
+	*state = ACTUATOR_STATE::Active;
 	__HAL_TIM_SET_COMPARE(htim, channel, gripCount);
 }
 
 void ServoGripper::center(){
-	state = ACTUATOR_STATE::Active;
+	*state = ACTUATOR_STATE::Active;
 	__HAL_TIM_SET_COMPARE(htim, channel, (releaseCount + gripCount)/2);
 }
 
@@ -56,7 +56,7 @@ void ServoGripper::setServoState(SERVO_STATE state){
 		center();
 	}else if(state == SERVO_STATE::RELEASE){
 		release();
-	}else if(state == SERVO_STATE::grip){
+	}else if(state == SERVO_STATE::GRIP){
 		grip();
 	}
 }

@@ -25,7 +25,7 @@ class ServoGripper {
 	uint16_t releaseCount;
 	uint16_t gripCount;
 public:
-	ServoGripper(ActuatorState *state, TIM_HandleTypeDef *htim = nullptr, uint32_t channel = 0, uint16_t releaseCount = 0, uint16_t gripCount = 0);
+	ServoGripper(ActuatorState *state = nullptr, TIM_HandleTypeDef *htim = nullptr, uint32_t channel = 0, uint16_t releaseCount = 0, uint16_t gripCount = 0);
 
 	//configuration functions
 	void setReleaseCount(uint16_t count);

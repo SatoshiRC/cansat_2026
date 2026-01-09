@@ -7,7 +7,7 @@
 
 #include <Motor.h>
 
-Motor::Motor(TIM_HandleTypeDef *htim = nullptr, uint32_t channelA = 0, uint32_t channelB = 0, uint16_t maxCounter = 0)
+Motor::Motor(TIM_HandleTypeDef *htim, uint32_t channelA, uint32_t channelB, uint16_t maxCounter)
 :htim(htim), channelA(channelA), channelB(channelB), maxCounter(maxCounter){
 	// TODO Auto-generated constructor stub
 

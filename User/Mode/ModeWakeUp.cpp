@@ -7,8 +7,15 @@
 
 #include <ModeWakeUp.h>
 
-ModeWakeUp::ModeWakeUp() {
+namespace mode{
+
+WakeUp::WakeUp() {
 	// TODO Auto-generated constructor stub
 
 }
 
+void WakeUp::execute(){
+
+}
+
+}

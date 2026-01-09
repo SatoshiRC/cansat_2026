@@ -10,9 +10,15 @@
 
 #include <ModeBase.h>
 
-class ModeWakeUp : public ModeBase {
+namespace mode{
+
+class WakeUp : public ModeBase {
 public:
-	ModeWakeUp();
+	WakeUp();
+
+	void execute();
 };
+
+}
 
 #endif /* INC_MODEWAKEUP_H_ */

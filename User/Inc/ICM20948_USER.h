@@ -10,7 +10,6 @@
 
 #include "ICM20948/ICM20948_HAL.h"
 #include "Vector3D/Vector3D.h"
-#include "stdexcept"
 #include <array>
 
 

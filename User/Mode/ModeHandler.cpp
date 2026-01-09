@@ -7,6 +7,8 @@
 
 #include <ModeHandler.h>
 
+namespace mode{
+
 ModeHandler::ModeHandler() {
 	// TODO Auto-generated constructor stub
 
@@ -20,4 +22,6 @@ void ModeHandler::setMode(MODE mode){
 	if(modeHandlers[static_cast<uint8_t>(mode)] != nullptr){
 		activeMode = mode;
 	}
+}
+
 }

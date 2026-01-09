@@ -11,12 +11,17 @@
 #include <ModeBase.h>
 #include "Parachute.h"
 
-class ModeDecent: public ModeBase {
+namespace mode{
+
+class Decent: public ModeBase {
 	int16_t parachuteReleaseAlt;
 	Parachute *parachute;
 public:
-	ModeDecent(Parachute *parachute = nullptr);
-	MODE execute();
+	Decent(Parachute *parachute = nullptr);
+	void execute();
+	void onAltitudeUpdate(const uint16_t altitude);
 };
+
+}
 
 #endif /* INC_MODEDECENT_H_ */

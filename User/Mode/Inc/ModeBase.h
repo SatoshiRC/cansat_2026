@@ -11,6 +11,8 @@
 #include "State.h"
 #include "GPS.h"
 
+namespace mode{
+
 enum class MODE{
 	Invalid,
 	WAKE_UP,
@@ -24,14 +26,20 @@ enum class MODE{
 };
 
 class ModeBase {
-	const MODE mode;
+	MODE mode;
+protected:
 	MODE nextMode;
 public:
 	ModeBase(MODE mode = MODE::Invalid);
-	virtual MODE execution() = 0;
+	void initialize(){};
+	void execute(){};
 	void onGpsUpdate(const NEDPosition &position){};
 	void onImuUpdate(){};
 	void onAltitudeUpdate(const uint16_t altitude){};
+
+	MODE getNextMode();
 };
+
+}
 
 #endif /* INC_MODEBASE_H_ */

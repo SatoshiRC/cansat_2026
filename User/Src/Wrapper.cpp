@@ -45,11 +45,11 @@ NMEAProcessor nmeaProcessor;
 
 State state;
 
-ModeWakeUp modeWakeUp;
-ModeReady modeReady;
-ModeDecent modeDecent;
-ModeRemoteControl modeRemoteControl;
-ModeHandler hmode;
+mode::WakeUp modeWakeUp;
+mode::Ready modeReady;
+mode::Decent modeDecent;
+mode::RemoteControl modeRemoteControl;
+mode::ModeHandler hmode;
 
 void init(){
 	//activate and check low-layer application
@@ -63,13 +63,13 @@ void init(){
 	nmeaProcessor.setPositionCallback(onGpsPositionUpdate);
 
 	//construct mode handler
-	modeWakeUp = ModeWakeUp();
-	modeReady = ModeReady();
-	modeDecent = ModeDecent(&parachute);
-	modeRemoteControl = ModeRemoteControl(&parachute, &stabilizerServo, &drive);
+	modeWakeUp = mode::WakeUp();
+	modeReady = mode::Ready();
+	modeDecent = mode::Decent(&parachute);
+	modeRemoteControl = mode::RemoteControl(&parachute, &stabilizerServo, &drive);
 
 	//construct low-layer features
-	gps = GPS(&state.GPS, &nmeaProcessor);
+	gps = GPS(&state.gps, &nmeaProcessor);
 
 	parachuteServoLeft = ServoGripper(&state.parachuteServoLeft, &htim13, TIM_CHANNEL_1);
 	parachuteServoRight = ServoGripper(&state.parachuteServoRight, &htim2, TIM_CHANNEL_1);

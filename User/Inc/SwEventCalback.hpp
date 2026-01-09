@@ -15,7 +15,7 @@
 #include "elapsedTimer/elapsedTimer.h"
 #include "ModeHandler.h"
 
-extern ModeHandler hmode;
+extern mode::ModeHandler hmode;
 
 /*
  * Sensors Callback Function Prototypes

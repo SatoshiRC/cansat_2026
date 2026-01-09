@@ -12,6 +12,8 @@
 
 #include "ModeBase.h"
 
+namespace mode {
+
 class ModeHandler {
 	std::array<ModeBase*, 9> modeHandlers;
 	MODE activeMode;
@@ -28,5 +30,7 @@ public:
 		return activeMode;
 	}
 };
+
+}  // namespace mode
 
 #endif /* INC_MODEHANDLER_H_ */

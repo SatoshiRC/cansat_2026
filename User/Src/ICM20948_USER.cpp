@@ -19,7 +19,7 @@ void ICM20948_USER::confirmConnection(){
 		whoami = icm20948->whoami();
 	}
 	if(whoami!=0xea){
-		throw std::runtime_error("ICM20948 is not detected");
+
 	}
 }
 

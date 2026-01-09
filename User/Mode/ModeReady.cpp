@@ -7,8 +7,16 @@
 
 #include <ModeReady.h>
 
-ModeReady::ModeReady() {
+namespace mode{
+
+Ready::Ready()
+:ModeBase(MODE::READY){
 	// TODO Auto-generated constructor stub
 
 }
 
+void Ready::execute(){
+
+}
+
+}

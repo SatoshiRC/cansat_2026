@@ -13,14 +13,20 @@
 #include "Parachute.h"
 #include "ServoGripper.h"
 #include "Drive.h"
+#include "elapsedTimer/elapsedTimer.h"
 
-class ModeRemoteControl: public ModeBase {
+namespace mode{
+
+class RemoteControl: public ModeBase {
 	Parachute *parachute;
 	ServoGripper *stabilizer;
 	Drive *drive;
 
+	ElapsedTimer *timer;
+
 public:
-	ModeRemoteControl(Parachute *patachute, ServoGripper *stabilizer, Drive *drive);
+	RemoteControl(Parachute *patachute = nullptr, ServoGripper *stabilizer = nullptr, Drive *drive = nullptr, ElapsedTimer *timer=nullptr);
+	void initialize();
 	void execute();
 
 	void enableParachute();
@@ -34,5 +40,7 @@ public:
 	void disableDrive();
 
 };
+
+}
 
 #endif /* INC_MODEREMOTECONTROL_H_ */

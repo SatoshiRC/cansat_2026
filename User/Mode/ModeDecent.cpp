@@ -7,15 +7,22 @@
 
 #include <ModeDecent.h>
 
-ModeDecent::ModeDecent(State *state, Parachute *parachute)
+namespace mode{
+
+Decent::Decent(Parachute *parachute)
 :ModeBase(MODE::DECENT),parachute(parachute) {
 
 }
 
-ModeDecent::onAltitudeUpdate(const uint16_t altitude){
+void Decent::execute(){
+
+}
+
+void Decent::onAltitudeUpdate(const uint16_t altitude){
 	if(altitude < parachuteReleaseAlt){
 		parachute->release();
 		nextMode = MODE::LANDING;
 	}
 }
 
+}

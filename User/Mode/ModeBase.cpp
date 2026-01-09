@@ -7,6 +7,8 @@
 
 #include <ModeBase.h>
 
+namespace mode{
+
 ModeBase::ModeBase(MODE mode)
 :mode(mode),nextMode(mode){
 	// TODO Auto-generated constructor stub
@@ -15,4 +17,6 @@ ModeBase::ModeBase(MODE mode)
 
 MODE ModeBase::getNextMode(){
 	return nextMode;
+}
+
 }

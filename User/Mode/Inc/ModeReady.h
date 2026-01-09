@@ -10,9 +10,15 @@
 
 #include <ModeBase.h>
 
-class ModeReady : public ModeBase {
+namespace mode{
+
+class Ready : public ModeBase {
 public:
-	ModeReady();
+	Ready();
+	void execute();
+
 };
+
+}
 
 #endif /* INC_MODEREADY_H_ */
