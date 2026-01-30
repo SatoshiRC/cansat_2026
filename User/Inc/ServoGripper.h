@@ -17,21 +17,40 @@ enum class SERVO_STATE{
 	GRIP
 };
 
+struct ServoGripperConfig{
+	uint16_t releaseCount;
+	uint16_t centerCount;
+	uint16_t gripCount;
+
+	ServoGripperConfig(
+			uint16_t releaseCount = 0,
+			uint16_t centerCount = 0,
+			uint16_t gripCount = 0
+			)
+		:releaseCount(releaseCount),
+		centerCount(centerCount),
+		gripCount(gripCount){}
+};
+
 class ServoGripper {
 	ActuatorState *state;
 
 	TIM_HandleTypeDef *htim;
 	uint32_t channel;
-	uint16_t releaseCount;
-	uint16_t gripCount;
+
+	ServoGripperConfig _config;
 public:
-	ServoGripper(ActuatorState *state = nullptr, TIM_HandleTypeDef *htim = nullptr, uint32_t channel = 0, uint16_t releaseCount = 0, uint16_t gripCount = 0);
+	ServoGripper(ActuatorState *state = nullptr, TIM_HandleTypeDef *htim = nullptr, uint32_t channel = 0, ServoGripperConfig config = ServoGripperConfig());
 
 	//configuration functions
 	void setReleaseCount(uint16_t count);
 	void setGripCount(int16_t count);
 	uint16_t getReleaseCount();
 	uint16_t getGripCount();
+	ServoGripperConfig& config(){
+		return _config;
+	}
+
 
 	//enable / disable PWM signal
 	void enable();
