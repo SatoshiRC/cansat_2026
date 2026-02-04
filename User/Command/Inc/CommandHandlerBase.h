@@ -1,0 +1,65 @@
+/*
+ * Base.h
+ *
+ *  Created on: Jan 5, 2026
+ *      Author: OHYA Satoshi
+ */
+
+#ifndef COMMAND_BASE_H_
+#define COMMAND_BASE_H_
+
+#include <cstdint>
+#include <vector>
+#include <functional>
+
+namespace command {
+
+constexpr enum class COMMAND_ID{
+	ConnectionCheck = 0,
+	SencorStatus,
+	Request,
+	Goal,
+	Altitude,
+	Mode,
+	AbsoluteNavigationLog,
+	RelativeNavigationLog,
+	ServoConfig,
+	Last
+};
+
+class Base {
+	static constexpr uint8_t dataBodyLen = 0;
+	COMMAND_ID id = COMMAND_ID::Last;
+
+protected:
+	std::function<void(void)> callback = nullptr;
+
+public:
+	Base();
+	COMMAND_ID onReceive(std::vector<uint8_t> &body){
+		return COMMAND_ID::Last;
+	};
+
+	/* 
+	 * Construct transmit frame **body**.
+	 * This function shuold be called throudh CommandManager::transmit(COMMAND_ID).
+	 * The return vector is data body
+	 */
+	std::vector<uint8_t> transmit(){
+		return std::vector<uint8_t>();
+	}
+
+	void setCallback(std::function<void(void)> callback){
+		this->callback = callback;
+	}
+
+	static constexpr uint8_t getDataBodyLen(){
+		return dataBodyLen;
+	}
+
+
+};
+
+} /* namespace command */
+
+#endif /* COMMAND_BASE_H_ */
