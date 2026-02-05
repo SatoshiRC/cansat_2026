@@ -4,7 +4,7 @@
 #include <array>
 #include <cstdint>
 
-namespace DataType {
+namespace CommandDataType {
 
 class SensorStatus {
     bool _tof = false;
@@ -104,6 +104,44 @@ public:
 
     int8_t& goalDirection() { return _goalDirection; }
     const int8_t& goalDirection() const { return _goalDirection; }
+};
+
+enum class ServoState{
+    Disabled = 0,
+    Open,
+    Center,
+    Close
+};
+
+enum class ServoId{
+    None = 0,
+    ParachuteLeft,
+    ParachuteRight,
+    Stabilizer
+};
+
+class SservoConfig {
+    ServoId _id = ServoId::None; 
+    uint16_t _openCount = 0;
+    uint16_t _closeCount = 0;
+    uint16_t _centerCount = 0;
+    ServoState _state = ServoState::Disabled;
+
+public:
+    ServoId& id() { return _id; }
+    const ServoId& id() const { return _id; }
+
+    uint16_t& openCount() { return _openCount; }
+    const uint16_t& openCount() const { return _openCount; }
+
+    uint16_t& closeCount() { return _closeCount; }
+    const uint16_t& closeCount() const { return _closeCount; }
+
+    uint16_t& centerCount() { return _centerCount; }
+    const uint16_t& centerCount() const { return _centerCount; }
+
+    ServoState& state() { return _state; }
+    const ServoState& state() const { return _state; }
 };
 
 } // namespace DataType
