@@ -62,7 +62,7 @@ public:
     const float& temperature() const { return _temperature; }
 };
 
-class AbsoluteNavgation {
+class AbsoluteNavigation {
     int32_t _relativePositionNorth = 0;
     int32_t _relativePositionEast = 0;
     int16_t _headingDirection = 0;
@@ -86,7 +86,7 @@ public:
     const int8_t& rightMotorPower() const { return _rightMotorPower; }
 };
 
-class RelativeNavigation : public AbsoluteNavgation {
+class RelativeNavigation : public AbsoluteNavigation {
     bool _isDetectedGoalOnCamera = false;
     bool _isDetectedGoalOnTof = false;
     int16_t _tofDistance = 0;
@@ -113,24 +113,13 @@ enum class ServoState{
     Close
 };
 
-enum class ServoId{
-    None = 0,
-    ParachuteLeft,
-    ParachuteRight,
-    Stabilizer
-};
-
 class SservoConfig {
-    ServoId _id = ServoId::None; 
     uint16_t _openCount = 0;
     uint16_t _closeCount = 0;
     uint16_t _centerCount = 0;
     ServoState _state = ServoState::Disabled;
 
 public:
-    ServoId& id() { return _id; }
-    const ServoId& id() const { return _id; }
-
     uint16_t& openCount() { return _openCount; }
     const uint16_t& openCount() const { return _openCount; }
 

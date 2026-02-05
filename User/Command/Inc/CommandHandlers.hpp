@@ -29,7 +29,7 @@ class SencorStatus : public Base{
     static constexpr uint8_t dataBodyLen = 1;
     static constexpr COMMAND_ID id = COMMAND_ID::SencorStatus;
 
-    bool tof, camera, barometer, magnetMeter, imu, gps;
+    CommandDataType::SensorStatus *status;
     const uint8_t tofOffset = 5;
     const uint8_t cameraOffset = 4;
     const uint8_t barometerOffset = 3;
@@ -60,11 +60,96 @@ class Goal : public Base{
     static constexpr uint8_t dataBodyLen = 16;
 	COMMAND_ID id = COMMAND_ID::Goal;
 
-    std::function<void(double, double)> callback = [](double latitude, double longitude) -> void {};
+    CommandDataType::Coordinates data;
+
+    std::function<void(CommandDataType::Coordinates&)> callback = [](CommandDataType::Coordinates &coordinate) -> void {};
 
 public:
     COMMAND_ID onReceive(std::vector<uint8_t> &body);
     std::vector<uint8_t> transmit();
+    void setCallback(std::function<void(CommandDataType::Coordinates&)> callback){
+        this->callback = callback;
+    }
+};
+
+class Altitude : public Base{
+    static constexpr uint8_t dataBoodyLen = 10;
+    COMMAND_ID id = COMMAND_ID::Altitude;
+
+    CommandDataType::Altitude data;
+    std::function<void(CommandDataType::Altitude&)> callback = [](CommandDataType::Altitude& data){};
+
+public:
+    COMMAND_ID onReceive(std::vector<uint8_t> &body);
+    std::vector<uint8_t> transmit();
+    void setCallback(std::function<void(CommandDataType::Altitude&)> callback){
+        this->callback = callback;
+    }
+};
+
+class Mode : public Base{
+    static constexpr uint8_t dataBodyLen = 1;
+    COMMAND_ID id = COMMAND_ID::Mode;
+
+    std::function<void(uint8_t)> callback = [](uint8_t mode){};
+
+public:
+    COMMAND_ID onReceive(std::vector<uint8_t> &body);
+    std::vector<uint8_t> transmit();
+    void setCallback(std::function<void(uint8_t)> callback){
+        this->callback = callback;
+    }
+};
+
+class AbsoluteNavigation : public Base {
+    static constexpr uint8_t dataBodyLen = 10;
+    COMMAND_ID id = COMMAND_ID::AbsoluteNavigationLog;
+
+    CommandDataType::AbsoluteNavigation *data;
+    std::function<void(CommandDataType::AbsoluteNavigation&)> callback = [](CommandDataType::AbsoluteNavigation& data){};
+
+public:
+COMMAND_ID onReceive(std::vector<uint8_t> &body);
+    std::vector<uint8_t> transmit();
+    void setCallback(std::function<void(CommandDataType::AbsoluteNavigation&)> callback){
+        this->callback = callback;
+    }
+};
+
+class RelativeNavigation : public Base {
+    static constexpr uint8_t dataBodyLen = 13;
+    COMMAND_ID id = COMMAND_ID::RelativeNavigationLog;
+
+    CommandDataType::RelativeNavigation *data;
+    std::function<void(CommandDataType::RelativeNavigation&)> callback = [](CommandDataType::RelativeNavigation& data){};
+
+public:
+    COMMAND_ID onReceive(std::vector<uint8_t> &body);
+    std::vector<uint8_t> transmit();
+    void setCallback(std::function<void(CommandDataType::RelativeNavigation&)> callback){
+        this->callback = callback;
+    }
+};
+
+class ServoConfig_prachuteLeft : public Base {
+    static constexpr uint8_t dataBodyLen = 7;
+    COMMAND_ID id = COMMAND_ID::ServoConfig_prachuteLeft;
+
+    CommandDataType::SservoConfig *data;
+    std::function<void(CommandDataType::SservoConfig&)> callback = [](CommandDataType::SservoConfig& data){};
+
+public:
+    COMMAND_ID onReceive(std::vector<uint8_t> &body);
+    std::vector<uint8_t> transmit();
+    void setCallback(std::function<void(CommandDataType::SservoConfig&)> callback){
+        this->callback = callback;
+    }
+};
+class ServoConfig_prachuteRight : public ServoConfig_prachuteLeft {
+    COMMAND_ID id = COMMAND_ID::ServoConfig_prachuteRight;
+};
+class ServoConfig_stabilizer : public ServoConfig_prachuteLeft {
+    COMMAND_ID id = COMMAND_ID::ServoConfig_stabilizer;
 };
 } /*namespace command*/
 

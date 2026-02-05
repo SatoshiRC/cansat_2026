@@ -23,7 +23,9 @@ constexpr enum class COMMAND_ID{
 	Mode,
 	AbsoluteNavigationLog,
 	RelativeNavigationLog,
-	ServoConfig,
+	ServoConfig_prachuteLeft,
+	ServoConfig_prachuteRight,
+	ServoConfig_stabilizer,
 	Last
 };
 
