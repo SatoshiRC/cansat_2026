@@ -3,3 +3,6 @@
 /FATFS/
 /Middlewares/
 /.settings/
+*.exe
+*.out
+/.vscode/
