@@ -37,7 +37,7 @@ void testGoalTransmit() {
     coordinates.latitude() = 35.689487;
     coordinates.longitude() = 139.691711;
 
-    Goal goal(&coordinates);
+    Goal goal(coordinates);
     const auto payload = goal.transmit();
     if (payload.size() != 16) {
         throw std::runtime_error("Goal payload length mismatch");
@@ -56,7 +56,7 @@ void testAltitudeTransmit() {
     altitude.pressure() = 1013.25f;
     altitude.temperature() = 24.5f;
 
-    Altitude handler(&altitude);
+    Altitude handler(altitude);
     const auto payload = handler.transmit();
     if (payload.size() != 10) {
         throw std::runtime_error("Altitude payload length mismatch");
@@ -76,7 +76,7 @@ void testAltitudeTransmit() {
 
 void testModeTransmit() {
     uint8_t currentMode = 0x5A;
-    Mode mode(&currentMode);
+    Mode mode(currentMode);
 
     const auto payload = mode.transmit();
     if (payload.size() != 1) {
@@ -95,7 +95,7 @@ void testAbsoluteNavigationTransmit() {
     nav.leftMotorPower() = 90;
     nav.rightMotorPower() = -45;
 
-    AbsoluteNavigation handler(&nav);
+    AbsoluteNavigation handler(nav);
     const auto payload = handler.transmit();
     if (payload.size() != 10) {
         throw std::runtime_error("AbsoluteNavigation payload length mismatch");
@@ -134,7 +134,7 @@ void testRelativeNavigationTransmit() {
     nav.tofDistance() = 0x01FF;
     nav.goalDirection() = -90;
 
-    RelativeNavigation handler(&nav);
+    RelativeNavigation handler(nav);
     const auto payload = handler.transmit();
     if (payload.size() != 13) {
         throw std::runtime_error("RelativeNavigation payload length mismatch");
@@ -183,7 +183,7 @@ void testSensorStatusTransmit() {
     status.imu() = true;
     status.gps() = true;
 
-    SensorStatus handler(&status);
+    SensorStatus handler(status);
     const auto payload = handler.transmit();
     if (payload.size() != 1) {
         throw std::runtime_error("SensorStatus payload length mismatch");
@@ -200,7 +200,7 @@ void testServoConfigTransmit() {
     config.centerCount() = 0x3456;
     config.closeCount() = 0x789A;
 
-    ServoConfig handler(&config);
+    ServoConfig handler(config);
     const auto payload = handler.transmit();
     if (payload.size() != 7) {
         throw std::runtime_error("ServoConfig payload length mismatch");

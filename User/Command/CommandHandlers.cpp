@@ -35,13 +35,14 @@ COMMAND_ID SensorStatus::onReceive(std::vector<uint8_t> &body){
 }
 
 std::vector<uint8_t> SensorStatus::transmit(){
+    update(data);
     std::vector<uint8_t> res(dataBodyLen);
-    res[0] &= data->tof() << tofOffset;
-    res[0] &= data->camera() << cameraOffset;
-    res[0] &= data->barometer() << barometerOffset;
-    res[0] &= data->magnetmeter() << magnetMeterOffset;
-    res[0] &= data->imu() << imuOffset;
-    res[0] &= data->gps() << gpsOffset;
+    res[0] &= data.tof() << tofOffset;
+    res[0] &= data.camera() << cameraOffset;
+    res[0] &= data.barometer() << barometerOffset;
+    res[0] &= data.magnetmeter() << magnetMeterOffset;
+    res[0] &= data.imu() << imuOffset;
+    res[0] &= data.gps() << gpsOffset;
 
     return res;
 }
@@ -68,14 +69,15 @@ COMMAND_ID Goal::onReceive(std::vector<uint8_t> &body){
 }
 
 std::vector<uint8_t> Goal::transmit(){
+    update(data);
     std::vector<uint8_t> res(dataBodyLen);
 
     uint8_t offset = 0;
     uint8_t size = 8;
-    copy(&data->latitude(), res.data() + offset, size);
+    copy(&data.latitude(), res.data() + offset, size);
     offset += size;
     size = 8;
-    copy(&data->longitude(), res.data() + offset, size);
+    copy(&data.longitude(), res.data() + offset, size);
     
     return res;
 }
@@ -95,17 +97,18 @@ COMMAND_ID Altitude::onReceive(std::vector<uint8_t> &body){
 }
 
 std::vector<uint8_t> Altitude::transmit(){
+    update(data);
     std::vector<uint8_t> res(dataBodyLen);
 
     uint8_t offset = 0;
     uint8_t size = 2;
-    copy(&data->altitude(), res.data() + offset, size);
+    copy(&data.altitude(), res.data() + offset, size);
     offset += size;
     size = 4;
-    copy(&data->pressure(), res.data() + offset, size);
+    copy(&data.pressure(), res.data() + offset, size);
     offset += size;
     size = 4;
-    copy(&data->temperature(), res.data() + offset, size);
+    copy(&data.temperature(), res.data() + offset, size);
 
     return res;
 }
@@ -116,8 +119,9 @@ COMMAND_ID Mode::onReceive(std::vector<uint8_t> &body){
 }
 
 std::vector<uint8_t> Mode::transmit(){
+    update(data);
     std::vector<uint8_t> res(dataBodyLen);
-    res[0] = *data;
+    res[0] = data;
     return res;
 }
 
@@ -149,23 +153,24 @@ COMMAND_ID AbsoluteNavigation::onReceive(std::vector<uint8_t> &body){
 }
 
 std::vector<uint8_t> AbsoluteNavigation::transmit(){
+    update(data);
     std::vector<uint8_t> res(dataBodyLen);
 
     uint8_t offset = 0;
     uint8_t size = 3;
-    copy(reinterpret_cast<uint8_t*>(&data->relativePositionNorth())+1, res.data() + offset, size);
+    copy(reinterpret_cast<uint8_t*>(&data.relativePositionNorth())+1, res.data() + offset, size);
     offset += size;
     size = 3;
-    copy(reinterpret_cast<uint8_t*>(&data->relativePositionEast())+1, res.data() + offset, size);
+    copy(reinterpret_cast<uint8_t*>(&data.relativePositionEast())+1, res.data() + offset, size);
     offset += size;
     size = 2;
-    copy((uint8_t*)&data->headingDirection(), res.data() + offset, size);
+    copy((uint8_t*)&data.headingDirection(), res.data() + offset, size);
     offset += size;
     size = 1;
-    res[offset] = data->leftMotorPower();
+    res[offset] = data.leftMotorPower();
     offset += size;
     size = 1;
-    res[offset] = data->rightMotorPower();
+    res[offset] = data.rightMotorPower();
 
     return res;
 }
@@ -206,32 +211,33 @@ COMMAND_ID RelativeNavigation::onReceive(std::vector<uint8_t> &body){
 }
 
 std::vector<uint8_t> RelativeNavigation::transmit(){
+    update(data);
     std::vector<uint8_t> res(dataBodyLen);
 
     uint8_t offset = 0;
     uint8_t size = 3;
-    copy(reinterpret_cast<uint8_t*>(&data->relativePositionNorth())+1, res.data() + offset, size);
+    copy(reinterpret_cast<uint8_t*>(&data.relativePositionNorth())+1, res.data() + offset, size);
     offset += size;
     size = 3;
-    copy(reinterpret_cast<uint8_t*>(&data->relativePositionEast())+1, res.data() + offset, size);
+    copy(reinterpret_cast<uint8_t*>(&data.relativePositionEast())+1, res.data() + offset, size);
     offset += size;
     size = 2;
-    copy((uint8_t*)&data->headingDirection(), res.data() + offset, size);
+    copy((uint8_t*)&data.headingDirection(), res.data() + offset, size);
     offset += size;
     size = 1;
-    res[offset] = data->leftMotorPower();
+    res[offset] = data.leftMotorPower();
     offset += size;
     size = 1;
-    res[offset] = data->rightMotorPower();
+    res[offset] = data.rightMotorPower();
     offset += size;
 
-    res[offset] = data->isDetectedGoalOnCamera() << 7; 
-    res[offset] &= data->isDetectedGoalOnTof() << 6; 
-    res[offset] &= data->tofDistance() >> 8;
+    res[offset] = data.isDetectedGoalOnCamera() << 7; 
+    res[offset] &= data.isDetectedGoalOnTof() << 6; 
+    res[offset] &= data.tofDistance() >> 8;
     offset++;
-    res[offset] = data->tofDistance() & 0xff;
+    res[offset] = data.tofDistance() & 0xff;
     offset++;
-    res[offset] = data->goalDirection();
+    res[offset] = data.goalDirection();
 
     return res;
 }
@@ -258,23 +264,24 @@ COMMAND_ID ServoConfig::onReceive(std::vector<uint8_t> &body){
 }
 
 std::vector<uint8_t> ServoConfig::transmit(){
+    update(data);
     std::vector<uint8_t> res(dataBodyLen);
 
     uint8_t offset = 0;
     uint8_t size = 1;
-    res[offset] = static_cast<uint8_t>(data->state());
+    res[offset] = static_cast<uint8_t>(data.state());
     offset += size;
 
     size = 2;
-    copy(&data->openCount(), res.data()+offset, size);
+    copy(&data.openCount(), res.data()+offset, size);
     offset += size;
 
     size = 2;
-    copy(&data->centerCount(), res.data()+offset, size);
+    copy(&data.centerCount(), res.data()+offset, size);
     offset += size;
 
     size = 2;
-    copy(&data->closeCount(), res.data()+offset, size);
+    copy(&data.closeCount(), res.data()+offset, size);
 
     return res;
 }
