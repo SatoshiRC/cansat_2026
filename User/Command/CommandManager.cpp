@@ -30,6 +30,5 @@ namespace command{
 	}
 	__attribute__((weak)) void CommandManager::transmit(const COMMAND_ID id){
 		auto frame = constructTransmitFrame(id);
-		__UNUSED_PARAM(frame);
 	}
 }

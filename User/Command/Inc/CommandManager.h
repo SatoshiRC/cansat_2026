@@ -61,7 +61,7 @@ public:
 			return;
 		}
 
-		const COMMAND_ID rid = static_cast<COMMAND_ID>frame[1];
+		const COMMAND_ID rid = static_cast<COMMAND_ID>(frame[1]);
 		std::vector<uint8_t> frameBody(frame.begin()+2, frame.end()-2);
 
 		//check body length
@@ -69,7 +69,7 @@ public:
 			return;
 		}
 
-		const COMMAND_ID tid = commandHandlers[static_cast<uint8_t>rid]->onReceive(frameBody);
+		const COMMAND_ID tid = commandHandlers[static_cast<uint8_t>(rid)]->onReceive(frameBody);
 		this->transmit(tid);
 	}
 };
