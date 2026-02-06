@@ -113,7 +113,7 @@ enum class ServoState{
     Close
 };
 
-class SservoConfig {
+class ServoConfig {
     uint16_t _openCount = 0;
     uint16_t _closeCount = 0;
     uint16_t _centerCount = 0;

@@ -14,9 +14,9 @@
 
 namespace command {
 
-constexpr enum class COMMAND_ID{
+enum class COMMAND_ID{
 	ConnectionCheck = 0,
-	SencorStatus,
+	SensorStatus,
 	Request,
 	Goal,
 	Altitude,
@@ -35,6 +35,7 @@ class Base {
 
 protected:
 	std::function<void(void)> callback = nullptr;
+	void copy(const void* src, const void* dist, const uint8_t len);
 
 public:
 	Base();
