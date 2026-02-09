@@ -4,12 +4,20 @@
 #include "CommandManager.h"
 #include "Parachute.h"
 #include "State.h"
+#include "NMEA.hpp"
+#include "AltitudeEstimation.h"
+#include "Barometer.h"
+#include "ModeHandler.h"
 
 extern ServoGripper parachuteServoLeft;
 extern ServoGripper parachuteServoRight;
 extern ServoGripper stabilizerServo;
 extern Parachute parachute;
 extern State state;
+extern NMEAProcessor nmeaProcessor;
+extern AltitudeEstimation altitudeEstimation;
+extern Barometer barometer;
+extern mode::ModeHandler hmode;
 
 namespace command{
 void sensorStatusTransmitEvent(CommandDataType::SensorStatus &data);

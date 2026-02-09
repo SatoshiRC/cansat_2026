@@ -17,11 +17,15 @@ struct BarometerOutput{
 };
 
 class Barometer {
-	std::function<void(const BarometerOutput&)> _callback;
+	std::function<void(const BarometerOutput&)> _callback = [](const BarometerOutput&){};
+	BarometerOutput _output;
 public:
 	Barometer();
 
 	void setCallback(std::function<void(const BarometerOutput&)> callback);
+
+	BarometerOutput& getOutput(){return _output;}
+	const BarometerOutput& getOutput() const {return _output;}
 };
 
 #endif /* INC_BAROMETER_H_ */
