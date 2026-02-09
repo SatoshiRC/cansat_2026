@@ -34,6 +34,7 @@ struct ServoGripperConfig{
 
 class ServoGripper {
 	ActuatorState *state;
+	SERVO_STATE servoState;
 
 	TIM_HandleTypeDef *htim;
 	uint32_t channel;
@@ -45,10 +46,15 @@ public:
 	//configuration functions
 	void setReleaseCount(uint16_t count);
 	void setGripCount(int16_t count);
+	void setCenterCount(int16_t count);
 	uint16_t getReleaseCount();
 	uint16_t getGripCount();
+	uint16_t getCenterCount();
 	ServoGripperConfig& config(){
 		return _config;
+	}
+	SERVO_STATE getServoState(){
+		return servoState;
 	}
 
 
