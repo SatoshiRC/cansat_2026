@@ -14,15 +14,15 @@
 namespace mode{
 
 enum class MODE{
-	Invalid,
 	WAKE_UP,
 	READY,
 	DECENT,
-	LANDING,
 	RELATIVE_NAVIGATION,
 	ABSOLUTE_NAVIGATION,
 	GOAL,
 	REMOTE_CONTROL,
+	AttitudeEstimationTest,
+	Last,
 };
 
 class ModeBase {
@@ -30,7 +30,7 @@ class ModeBase {
 protected:
 	MODE nextMode;
 public:
-	ModeBase(MODE mode = MODE::Invalid);
+	ModeBase(MODE mode = MODE::Last);
 	void initialize(){};
 	void execute(){};
 	void onGpsUpdate(const NEDPosition &position){};
