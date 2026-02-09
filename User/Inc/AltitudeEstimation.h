@@ -10,18 +10,27 @@
 
 #include <cstdint>
 #include <functional>
+#include "Barometer.h"
 
 class AltitudeEstimation {
-	uint16_t _altitude;
+	uint16_t _altitude = 0;
 	std::function<void(const uint16_t)> _callback;
+
+	bool _isCompleteCalibration = false;
+
+	uint16_t grouncPressureCalibrationCount = 0;
+	float groundPressure = 0;
+	BarometerOutput _befBarometerOunpur;
 public:
-	AltitudeEstimation();
-	void onObserveBarometer();
+	AltitudeEstimation() = default;
+	AltitudeEstimation(std::function<void(const uint16_t)> callback):_callback(callback){}
+	void onObserveBarometer(const BarometerOutput &barometerOutput);
 	void onObserveGPS();
 	void onObserveIMU();
 	void exeEstimation();
 
 	uint16_t getAltitude();
+	bool isCompleteCalibration(){return _isCompleteCalibration;}
 	void setCallback(std::function<void(const uint16_t)> callback);
 };
 
