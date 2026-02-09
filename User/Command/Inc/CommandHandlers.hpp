@@ -42,6 +42,7 @@ class SensorStatus : public Base{
     const uint8_t magnetMeterOffset = 2;
     const uint8_t imuOffset = 1;
     const uint8_t gpsOffset = 0;
+    std::function<void(CommandDataType::SensorStatus&)> callback = [](CommandDataType::SensorStatus&){ };
     std::function<void(CommandDataType::SensorStatus&)> update = [](CommandDataType::SensorStatus&){ };
     
 public:
@@ -50,6 +51,9 @@ public:
     SensorStatus(std::function<void(CommandDataType::SensorStatus&)> update,
                  const CommandDataType::SensorStatus &data = CommandDataType::SensorStatus()):data(data),update(update){}
     COMMAND_ID onReceive(std::vector<uint8_t> &body);
+    void setCallback(std::function<void(CommandDataType::SensorStatus&)> func){
+        callback = func;
+    }
 	std::vector<uint8_t> transmit();
     void setUpdate(std::function<void(CommandDataType::SensorStatus&)> func){
         update = func;

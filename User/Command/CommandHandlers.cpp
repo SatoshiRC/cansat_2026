@@ -31,6 +31,15 @@ std::vector<uint8_t> ConnectionCheck::transmit(){
 }
 
 COMMAND_ID SensorStatus::onReceive(std::vector<uint8_t> &body){
+    CommandDataType::SensorStatus data;
+    data.tof() = body[0] & 0b1<<tofOffset;
+    data.camera() = body[0] & 0b1<<cameraOffset;
+    data.barometer() = body[0] & 0b1<<barometerOffset;
+    data.magnetmeter() = body[0] & 0b1<<magnetMeterOffset;
+    data.imu() = body[0] & 0b1<<imuOffset;
+    data.gps() = body[0] & 0b1<<gpsOffset;
+    callback(data);
+
     return COMMAND_ID::Last;
 }
 
