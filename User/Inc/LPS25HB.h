@@ -3,6 +3,8 @@
 using namespace std;
 
 #include <cstdint>
+#include <array>
+#include <vector>
 
 class LPS25HB {
  public:
@@ -46,13 +48,22 @@ class LPS25HB {
   void setMode(LPS25HB_FIFO_MODE fifoMode, LPS25HB_RATE rate);
   void setOffset(float hPa);
 
- private:
   virtual void writeData(uint8_t reg, uint8_t data) = 0;
   virtual uint8_t readData(uint8_t reg) = 0;
+
+ private:
+  virtual void write(uint8_t reg, uint8_t *data) = 0;
+  virtual std::vector<uint8_t> read(uint8_t reg, uint8_t len = 1) = 0;
 
   uint8_t address;
 };
 
 class LPS25HB_STM32_HAL: public LPS25HB{
+public:
+	void writeData(uint8_t reg, uint8_t data) override;
+	uint8_t readData(uint8_t reg) override;
 
+private:
+	void write(uint8_t reg, uint8_t *data) override;
+	std::vector<uint8_t> read(uint8_t reg, uint8_t len = 1) override;
 };

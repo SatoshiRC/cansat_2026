@@ -78,22 +78,24 @@ bool LPS25HB::whoAreYou(void) {
 }
 
 float LPS25HB::getPressure(void) {
-  uint32_t ldata = static_cast<uint32_t>(readData(static_cast<uint8_t>(LPS25HB_REG::PRESS_OUT_H)));
-  ldata = (ldata << 8) | static_cast<uint32_t>(readData(static_cast<uint8_t>(LPS25HB_REG::PRESS_OUT_L)));
-  ldata = (ldata << 8) | static_cast<uint32_t>(readData(static_cast<uint8_t>(LPS25HB_REG::PRESS_OUT_XL)));
-  return static_cast<float>(ldata) / 4096.0f;
+	std::vector data = read(static_cast<uint8_t>(LPS25HB_REG::PRESS_OUT_XL), 3);
+	uint32_t ldata = static_cast<uint32_t>(data[2]);
+	ldata = (ldata << 8) | static_cast<uint32_t>(data[1]);
+	ldata = (ldata << 8) | static_cast<uint32_t>(data[0]);
+	return static_cast<float>(ldata) / 4096.0f;
 }
 
 float LPS25HB::getTemplature(void) {
-  int16_t idata = static_cast<uint16_t>(readData(static_cast<uint8_t>(LPS25HB_REG::TEMP_OUT_H)));
-  idata = (idata << 8) | static_cast<uint16_t>(readData(static_cast<uint8_t>(LPS25HB_REG::TEMP_OUT_L)));
-  return 42.5 + static_cast<float>(idata) / 480.0f;
+	std::vector data = read(static_cast<uint8_t>(LPS25HB_REG::TEMP_OUT_L), 2);
+	int16_t idata = static_cast<uint16_t>(data[1]);
+	idata = (idata << 8) | static_cast<uint16_t>(data[0]);
+	return 42.5 + static_cast<float>(idata) / 480.0f;
 }
 
 void LPS25HB::setOffset(float offset_hPa) {
-  uint32_t ldata = static_cast<uint32_t>(offset_hPa * 4096);
-  writeData(static_cast<uint8_t>(LPS25HB_REG::RPDS_L), static_cast<uint8_t>((ldata >> 8) & 0xFF));
-  writeData(static_cast<uint8_t>(LPS25HB_REG::RPDS_H), static_cast<uint8_t>((ldata >> 16) & 0xFF));
+	uint32_t ldata = static_cast<uint32_t>(offset_hPa * 4096);
+	writeData(static_cast<uint8_t>(LPS25HB_REG::RPDS_L), static_cast<uint8_t>((ldata >> 8) & 0xFF));
+	writeData(static_cast<uint8_t>(LPS25HB_REG::RPDS_H), static_cast<uint8_t>((ldata >> 16) & 0xFF));
 }
 
 //void LPS25HB::writeData(uint8_t reg, uint8_t data) {
@@ -110,3 +112,8 @@ void LPS25HB::setOffset(float offset_hPa) {
 //  wire->requestFrom(address, (uint8_t)1);
 //  return wire->read();
 //}
+
+void LPS25HB_STM32_HAL::writeData(uint8_t reg, uint8_t data){
+	std::array<uint8_t, 2> buf = {reg, data};
+	HAL_I2C_
+}
