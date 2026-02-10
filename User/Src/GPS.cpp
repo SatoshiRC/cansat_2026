@@ -17,7 +17,7 @@ void GPS::startReceive(){
 }
 
 void GPS::onReceive(){
-	uint16_t rxCount = huart->RxXferCount;
+	uint16_t rxCount = huart->RxXferSize - huart->RxXferCount;
 	std::vector<uint8_t> rMessage(rBuffer.begin(), rBuffer.begin()+rxCount);
 	nmeaProcessor->onReceive(rMessage);
 	if(nmeaProcessor->isLastFrameValid()){
