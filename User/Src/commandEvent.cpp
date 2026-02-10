@@ -41,24 +41,25 @@ void relativeNavigationTransmitEvent(CommandDataType::RelativeNavigation &data){
 }
 
 void servoConfigParachuteLeftTransmitEvent(CommandDataType::ServoConfig &data){
+	auto servoConfig = &parachuteServoLeft;
     if (state.parachuteServoLeft == ACTUATOR_STATE::Disabled){
         data.state() = CommandDataType::ServoState::Disabled;
     }else{
-        switch(parachuteServoLeft.getServoState){
-            case SERVO_STATE::Release:
+        switch(servoConfig->getServoState()){
+            case SERVO_STATE::RELEASE:
                 data.state() = CommandDataType::ServoState::Open;
             break;
-            case SERVO_STATE::Grip:
+            case SERVO_STATE::GRIP:
                 data.state() = CommandDataType::ServoState::Close;
             break;
-            case SERVO_STATE::Center:
+            case SERVO_STATE::CENTER:
                 data.state() = CommandDataType::ServoState::Center;
             break;
         }
     }
-    data.centerCount = parachuteServoLeft.getCenterCount();
-    data.openCount = parachuteServoLeft.getReleaseCount();
-    data.closeCount = parachuteServoLeft.getGripCount();
+    data.centerCount() = servoConfig->getCenterCount();
+    data.openCount() = servoConfig->getReleaseCount();
+    data.closeCount() = servoConfig->getGripCount();
 }
 void servoConfigParachuteLeftReceiveEvent(CommandDataType::ServoConfig &data){
 	auto servoConfig = &parachuteServoLeft;
@@ -82,24 +83,25 @@ void servoConfigParachuteLeftReceiveEvent(CommandDataType::ServoConfig &data){
 }
 
 void servoConfigParachuteRightTransmitEvent(CommandDataType::ServoConfig &data){
-    if (state.parachuteServoRight == ACTUATOR_STATE::Disabled){
+	auto servoConfig = &parachuteServoRight;
+    if (state.parachuteServoLeft == ACTUATOR_STATE::Disabled){
         data.state() = CommandDataType::ServoState::Disabled;
     }else{
-        switch(parachuteServoRight.getServoState){
-            case SERVO_STATE::Release:
+        switch(servoConfig->getServoState()){
+            case SERVO_STATE::RELEASE:
                 data.state() = CommandDataType::ServoState::Open;
             break;
-            case SERVO_STATE::Grip:
+            case SERVO_STATE::GRIP:
                 data.state() = CommandDataType::ServoState::Close;
             break;
-            case SERVO_STATE::Center:
+            case SERVO_STATE::CENTER:
                 data.state() = CommandDataType::ServoState::Center;
             break;
         }
     }
-    data.centerCount = parachuteServoRight.getCenterCount();
-    data.openCount = parachuteServoRight.getReleaseCount();
-    data.closeCount = parachuteServoRight.getGripCount();
+    data.centerCount() = servoConfig->getCenterCount();
+    data.openCount() = servoConfig->getReleaseCount();
+    data.closeCount() = servoConfig->getGripCount();
 }
 void servoConfigParachuteRightReceiveEvent(CommandDataType::ServoConfig &data){
 	auto servoConfig = &parachuteServoRight;
@@ -123,24 +125,25 @@ void servoConfigParachuteRightReceiveEvent(CommandDataType::ServoConfig &data){
 }
 
 void servoConfigStabilizerTransmitEvent(CommandDataType::ServoConfig &data){
-if (state.stabilizerServo == ACTUATOR_STATE::Disabled){
+	auto servoConfig = &stabilizerServo;
+    if (state.parachuteServoLeft == ACTUATOR_STATE::Disabled){
         data.state() = CommandDataType::ServoState::Disabled;
     }else{
-        switch(stabilizerServo.getServoState){
-            case SERVO_STATE::Release:
+        switch(servoConfig->getServoState()){
+            case SERVO_STATE::RELEASE:
                 data.state() = CommandDataType::ServoState::Open;
             break;
-            case SERVO_STATE::Grip:
+            case SERVO_STATE::GRIP:
                 data.state() = CommandDataType::ServoState::Close;
             break;
-            case SERVO_STATE::Center:
+            case SERVO_STATE::CENTER:
                 data.state() = CommandDataType::ServoState::Center;
             break;
         }
     }
-    data.centerCount = stabilizerServo.getCenterCount();
-    data.openCount = stabilizerServo.getReleaseCount();
-    data.closeCount = stabilizerServo.getGripCount();
+    data.centerCount() = servoConfig->getCenterCount();
+    data.openCount() = servoConfig->getReleaseCount();
+    data.closeCount() = servoConfig->getGripCount();
 }
 void servoConfigStabilizerReceiveEvent(CommandDataType::ServoConfig &data){
 	auto servoConfig = &stabilizerServo;
