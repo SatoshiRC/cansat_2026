@@ -25,6 +25,9 @@
 #include "ModeReady.h"
 #include "ModeDecent.h"
 #include "ModeRemoteControl.h"
+#include "ModeAltitudeEstimationTest.h"
+
+#include "CommandManager.h"
 
 #include <array>
 
@@ -37,11 +40,13 @@ ServoGripper stabilizerServo;
 Motor leftMotor;
 Motor rightMotor;
 GPS gps;
-Barometer barometer;
+LPS25HB_STM32_HAL lps25hb;
 
 Parachute parachute;
 Drive drive;
+Barometer barometer;
 NMEAProcessor nmeaProcessor;
+AltitudeEstimation altitudeEstimation;
 
 State state;
 
@@ -49,7 +54,10 @@ mode::WakeUp modeWakeUp;
 mode::Ready modeReady;
 mode::Decent modeDecent;
 mode::RemoteControl modeRemoteControl;
+mode::AltitudeEstimationTest modeAttitudeEstimationTest;
 mode::ModeHandler hmode;
+
+command::CommandManager commandManager;
 
 void init(){
 	//activate and check low-layer application
@@ -65,11 +73,21 @@ void init(){
 	//construct mode handler
 	modeWakeUp = mode::WakeUp();
 	modeReady = mode::Ready();
-	modeDecent = mode::Decent(&parachute);
-	modeRemoteControl = mode::RemoteControl(&parachute, &stabilizerServo, &drive);
+	modeDecent = mode::Decent(&commandManager, &parachute);
+	modeRemoteControl = mode::RemoteControl(&commandManager, &parachute, &stabilizerServo, &drive, &elapsedTimer);
+	modeAttitudeEstimationTest = mode::AltitudeEstimationTest(&commandManager, &altitudeEstimation);
+
+	hmode.registerMode(static_cast<mode::ModeBase*>(&modeWakeUp));
+	hmode.registerMode(static_cast<mode::ModeBase*>(&modeReady));
+	hmode.registerMode(static_cast<mode::ModeBase*>(&modeDecent));
+	hmode.registerMode(static_cast<mode::ModeBase*>(&modeRemoteControl));
+	hmode.registerMode(static_cast<mode::ModeBase*>(&modeAttitudeEstimationTest));
+
+	hmode.setMode(mode::MODE::WAKE_UP);
 
 	//construct low-layer features
 	gps = GPS(&state.gps, &nmeaProcessor);
+	lps25hb = LPS25HB_STM32_HAL(&hi2c2, LPS25HB::LPS25HB_Address::Low);
 
 	parachuteServoLeft = ServoGripper(&state.parachuteServoLeft, &htim13, TIM_CHANNEL_1);
 	parachuteServoRight = ServoGripper(&state.parachuteServoRight, &htim2, TIM_CHANNEL_1);
@@ -78,16 +96,38 @@ void init(){
 	//configure and activate features
 	parachute = Parachute(&parachuteServoLeft, &parachuteServoRight);
 	parachute.enable();
+
 	drive = Drive(&leftMotor, &rightMotor);
 	drive.enable();
+
+	barometer = Barometer(&lps25hb);
+	barometer.init();
 	//TODO : configure ICM20948
 	//TODO : configure AK09916 which is implemented in the ICM20948
-	//TODO : configure LPS25HB
 
 }
 
 void loop(){
+	altitudeEstimation.exeEstimation();
 	hmode.executeInloop();
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+switch(GPIO_Pin){
+case GPIO_PIN_2:
+	lps25hb.updateRawData();
+	break;
+default:
+	break;
+}
+}
+
+void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c){
+	if(hi2c == &hi2c1){
+
+	}else if(hi2c == &hi2c2){
+		barometer.update();
+	}
 }
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
@@ -96,4 +136,8 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 			gps.onReceive();
 		}
 	}
+}
+
+void command::CommandManager::transmit(const COMMAND_ID id){
+	auto frame = constructTransmitFrame(id);
 }
