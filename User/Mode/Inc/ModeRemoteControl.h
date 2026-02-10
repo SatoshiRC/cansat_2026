@@ -18,6 +18,8 @@
 namespace mode{
 
 class RemoteControl: public ModeBase {
+	static constexpr MODE mode = MODE::REMOTE_CONTROL;
+
 	Parachute *parachute;
 	ServoGripper *stabilizer;
 	Drive *drive;
@@ -25,7 +27,8 @@ class RemoteControl: public ModeBase {
 	ElapsedTimer *timer;
 
 public:
-	RemoteControl(Parachute *patachute = nullptr, ServoGripper *stabilizer = nullptr, Drive *drive = nullptr, ElapsedTimer *timer=nullptr);
+	RemoteControl() = default;
+	RemoteControl(command::CommandManager *commandManager, Parachute *patachute, ServoGripper *stabilizer, Drive *drive, ElapsedTimer *timer);
 	void initialize();
 	void execute();
 

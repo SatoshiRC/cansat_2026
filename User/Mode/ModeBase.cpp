@@ -9,12 +9,6 @@
 
 namespace mode{
 
-ModeBase::ModeBase(MODE mode)
-:mode(mode),nextMode(mode){
-	// TODO Auto-generated constructor stub
-
-}
-
 MODE ModeBase::getNextMode(){
 	return nextMode;
 }

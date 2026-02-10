@@ -14,8 +14,22 @@ ModeHandler::ModeHandler() {
 
 }
 
-void ModeHandler::registerMode(MODE id, ModeBase *mode){
-	modeHandlers[static_cast<uint8_t>(id)] = mode;
+void ModeHandler::executeInloop(){
+	modeHandlers[static_cast<uint8_t>(activeMode)]->execute();
+}
+
+void ModeHandler::onGpsUpdate(const NEDPosition &position){
+	modeHandlers[static_cast<uint8_t>(activeMode)]->onGpsUpdate(position);
+};
+void ModeHandler::onImuUpdate(){
+	modeHandlers[static_cast<uint8_t>(activeMode)]->onImuUpdate();
+};
+void ModeHandler::onAltitudeUpdate(const float altitude){
+	modeHandlers[static_cast<uint8_t>(activeMode)]->onAltitudeUpdate(altitude);
+}
+
+void ModeHandler::registerMode(ModeBase *mode){
+	modeHandlers[static_cast<uint8_t>(mode->getMode())] = mode;
 }
 
 void ModeHandler::setMode(MODE mode){

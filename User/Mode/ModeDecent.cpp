@@ -9,8 +9,9 @@
 
 namespace mode{
 
-Decent::Decent(Parachute *parachute)
-:ModeBase(MODE::DECENT),parachute(parachute) {
+Decent::Decent(command::CommandManager *commandManager, Parachute *parachute)
+:ModeBase(commandManager),
+ parachute(parachute) {
 
 }
 

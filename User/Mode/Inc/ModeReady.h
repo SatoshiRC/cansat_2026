@@ -13,8 +13,10 @@
 namespace mode{
 
 class Ready : public ModeBase {
+	static constexpr MODE mode = MODE::READY;
 public:
-	Ready();
+	Ready() = default;
+	Ready(command::CommandManager *commandManager);
 	void execute();
 
 };

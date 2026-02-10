@@ -15,16 +15,16 @@
 namespace mode {
 
 class ModeHandler {
-	std::array<ModeBase*, 9> modeHandlers;
+	std::array<ModeBase*, static_cast<uint8_t>(MODE::Last)> modeHandlers;
 	MODE activeMode;
 public:
 	ModeHandler();
 	void executeInloop();
-	void onGpsUpdate(const NEDPosition &position){};
-	void onImuUpdate(){};
-	void onAltitudeUpdate(const float altitude){};
+	void onGpsUpdate(const NEDPosition &position);
+	void onImuUpdate();
+	void onAltitudeUpdate(const float altitude);
 
-	void registerMode(MODE id, ModeBase *mode);
+	void registerMode(ModeBase *mode);
 	void setMode(MODE mode);
 	MODE getActiveMode(){
 		return activeMode;

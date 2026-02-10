@@ -14,10 +14,12 @@
 namespace mode{
 
 class Decent: public ModeBase {
+	static constexpr MODE mode = MODE::DECENT;
 	int16_t parachuteReleaseAlt;
 	Parachute *parachute;
 public:
-	Decent(Parachute *parachute = nullptr);
+	Decent() = default;
+	Decent(command::CommandManager *commandManager, Parachute *parachute);
 	void execute();
 	void onAltitudeUpdate(const uint16_t altitude);
 };

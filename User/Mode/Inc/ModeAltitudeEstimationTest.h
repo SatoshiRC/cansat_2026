@@ -15,14 +15,14 @@
 
 namespace mode{
 
-class ModeAltitudeEstimationTest {
-	MODE mode;
-	AltitudeEstimation _altitudeEstimation = nullptr;
+class AltitudeEstimationTest : public ModeBase {
+	static constexpr MODE mode = MODE::AttitudeEstimationTest;
+	AltitudeEstimation *_altitudeEstimation = nullptr;
 protected:
 	MODE nextMode;
 public:
-	ModeAltitudeEstimationTest() = default;
-	ModeAltitudeEstimationTest(AltitudeEstimation *altitudeEstimation, MODE mode = MODE::AttitudeEstimationTest);
+	AltitudeEstimationTest() = default;
+	AltitudeEstimationTest(command::CommandManager *commandManager, AltitudeEstimation *altitudeEstimation);
 	void initialize(){};
 	void execute(){};
 	void onImuUpdate(){};

@@ -10,6 +10,7 @@
 
 #include "State.h"
 #include "GPS.h"
+#include "CommandManager.h"
 
 namespace mode{
 
@@ -17,6 +18,7 @@ enum class MODE{
 	WAKE_UP,
 	READY,
 	DECENT,
+	LANDING,
 	RELATIVE_NAVIGATION,
 	ABSOLUTE_NAVIGATION,
 	GOAL,
@@ -26,11 +28,14 @@ enum class MODE{
 };
 
 class ModeBase {
-	MODE mode;
+	static constexpr MODE mode = MODE::Last;
 protected:
 	MODE nextMode;
+	command::CommandManager *commandManager;
+
 public:
-	ModeBase(MODE mode = MODE::Last);
+	ModeBase():nextMode(mode){};
+	ModeBase(command::CommandManager *commandManager):nextMode(mode),commandManager(commandManager){};
 	void initialize(){};
 	void execute(){};
 	void onGpsUpdate(const NEDPosition &position){};
@@ -38,6 +43,9 @@ public:
 	void onAltitudeUpdate(const uint16_t altitude){};
 
 	MODE getNextMode();
+	constexpr MODE getMode(){
+		return mode;
+	}
 };
 
 }

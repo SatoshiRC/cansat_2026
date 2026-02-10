@@ -9,8 +9,9 @@
 
 namespace mode{
 
-Ready::Ready()
-:ModeBase(MODE::READY){
+Ready::Ready(command::CommandManager *commandManager)
+:ModeBase(commandManager)
+{
 	// TODO Auto-generated constructor stub
 
 }
