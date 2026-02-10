@@ -1,57 +1,29 @@
 #include "LPS25HB.h"
 
-enum class LPS25HB_REG : uint8_t {
-  REF_P_XL = 0x08,
-  REF_P_L = 0x09,
-  REF_P_H = 0x0A,
-  WHO_AM_I = 0x0F,
-  RES_CONF = 0x10,
-  CTRL_REG1 = 0x20,
-  CTRL_REG2 = 0x21,
-  CTRL_REG3 = 0x22,
-  CTRL_REG4 = 0x23,
-  INTERRUPT_CFG = 0x24,
-  INT_SOURCE = 0x25,
-  STATUS_REG = 0x27,
-  PRESS_OUT_XL = 0x28,
-  PRESS_OUT_L = 0x29,
-  PRESS_OUT_H = 0x2A,
-  TEMP_OUT_L = 0x2B,
-  TEMP_OUT_H = 0x2C,
-  FIFO_CTRL = 0x2E,
-  FIFO_STATUS = 0x2F,
-  THS_P_L = 0x30,
-  THS_P_H = 0x31,
-  RPDS_L = 0x39,
-  RPDS_H = 0x3A,
-};
-
 constexpr uint16_t timeout = 500;
 constexpr uint16_t confirming_interval = 5;
 constexpr uint16_t confirming_max_count = (timeout / confirming_interval);
 
-LPS25HB::LPS25HB() {}
-
 bool LPS25HB::reset(void) {
-//  // ソフトウェアリセット
-//  writeData(static_cast<uint8_t>(LPS25HB_REG::CTRL_REG2), 0x04);
-//  // リセット確認
-//  for (uint16_t i = 0; i < confirming_max_count; i++) {
-//    if (readData(static_cast<uint8_t>(LPS25HB_REG::CTRL_REG2)) == 0) { break; }
-//    if (i == (confirming_max_count - 1)) { return false; }
-//    delay(5);
-//  }
-//
-//  // リブートメモリ
-//  writeData(static_cast<uint8_t>(LPS25HB_REG::CTRL_REG2), 0x80);
-//  // リブート確認
-//  for (uint16_t i = 0; i < confirming_max_count; i++) {
-//    if (readData(static_cast<uint8_t>(LPS25HB_REG::CTRL_REG2)) == 0) { break; }
-//    if (i == (confirming_max_count - 1)) { return false; }
-//    delay(5);
-//  }
-//
-//  return true;
+  // ソフトウェアリセット
+  writeData(static_cast<uint8_t>(LPS25HB_REG::CTRL_REG2), 0x04);
+  // リセット確認
+  for (uint16_t i = 0; i < confirming_max_count; i++) {
+    if (readData(static_cast<uint8_t>(LPS25HB_REG::CTRL_REG2)) == 0) { break; }
+    if (i == (confirming_max_count - 1)) { return false; }
+    delay(5);
+  }
+
+  // リブートメモリ
+  writeData(static_cast<uint8_t>(LPS25HB_REG::CTRL_REG2), 0x80);
+  // リブート確認
+  for (uint16_t i = 0; i < confirming_max_count; i++) {
+    if (readData(static_cast<uint8_t>(LPS25HB_REG::CTRL_REG2)) == 0) { break; }
+    if (i == (confirming_max_count - 1)) { return false; }
+    delay(5);
+  }
+
+  return true;
 }
 
 void LPS25HB::setMode(LPS25HB_FIFO_MODE fifoMode, LPS25HB_RATE rate) {
@@ -60,8 +32,7 @@ void LPS25HB::setMode(LPS25HB_FIFO_MODE fifoMode, LPS25HB_RATE rate) {
   writeData(static_cast<uint8_t>(LPS25HB_REG::FIFO_CTRL), static_cast<uint8_t>(fifoMode));
 }
 
-bool LPS25HB::begin(LPS25HB_Address SA0, LPS25HB_FIFO_MODE fifoMode, LPS25HB_RATE rate) {
-  address = (uint8_t)SA0;
+bool LPS25HB::begin(LPS25HB_FIFO_MODE fifoMode, LPS25HB_RATE rate) {
 
   // デバイス応答確認
   if (!whoAreYou()) { return false; }
@@ -78,7 +49,7 @@ bool LPS25HB::whoAreYou(void) {
 }
 
 float LPS25HB::getPressure(void) {
-	std::vector data = read(static_cast<uint8_t>(LPS25HB_REG::PRESS_OUT_XL), 3);
+	std::vector data(rawDataBuffer.begin(), rawDataBuffer.begin()+3);
 	uint32_t ldata = static_cast<uint32_t>(data[2]);
 	ldata = (ldata << 8) | static_cast<uint32_t>(data[1]);
 	ldata = (ldata << 8) | static_cast<uint32_t>(data[0]);
@@ -86,10 +57,14 @@ float LPS25HB::getPressure(void) {
 }
 
 float LPS25HB::getTemplature(void) {
-	std::vector data = read(static_cast<uint8_t>(LPS25HB_REG::TEMP_OUT_L), 2);
+	std::vector data(rawDataBuffer.begin()+3, rawDataBuffer.end());
 	int16_t idata = static_cast<uint16_t>(data[1]);
 	idata = (idata << 8) | static_cast<uint16_t>(data[0]);
 	return 42.5 + static_cast<float>(idata) / 480.0f;
+}
+
+void LPS25HB::updateRawData(){
+	read(static_cast<uint8_t>(LPS25HB_REG::PRESS_OUT_XL), rawDataBuffer.data(), 5);
 }
 
 void LPS25HB::setOffset(float offset_hPa) {
@@ -114,6 +89,24 @@ void LPS25HB::setOffset(float offset_hPa) {
 //}
 
 void LPS25HB_STM32_HAL::writeData(uint8_t reg, uint8_t data){
-	std::array<uint8_t, 2> buf = {reg, data};
-	HAL_I2C_
+	HAL_I2C_Mem_Write(hi2c, address<<1, reg, 1, &data, 1, 10);
+}
+
+uint8_t LPS25HB_STM32_HAL::readData(uint8_t reg){
+  uint8_t res = 0;
+  HAL_I2C_Mem_Read(hi2c, address<<1, reg, 1, &res, 1, 10);
+  return res;
+}
+
+void LPS25HB_STM32_HAL::write(uint8_t reg, uint8_t *data, uint8_t len){
+	reg &= 0b1<<7;
+	HAL_I2C_Mem_Write_DMA(hi2c, address, reg, 1, data, len);
+}
+void LPS25HB_STM32_HAL::read(uint8_t reg, uint8_t *data, uint8_t len){
+	reg &= 0b1<<7;
+	HAL_I2C_Mem_Read_DMA(hi2c, address, reg, 1, data, len);
+}
+
+void LPS25HB_STM32_HAL::delay(uint8_t ms){
+  HAL_Delay(ms);
 }
