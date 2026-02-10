@@ -14,8 +14,11 @@
 #include "State.h"
 #include "elapsedTimer/elapsedTimer.h"
 #include "ModeHandler.h"
+#include "AltitudeEstimation.h"
+
 
 extern mode::ModeHandler hmode;
+extern AltitudeEstimation altitudeEstimation;
 
 /*
  * Sensors Callback Function Prototypes

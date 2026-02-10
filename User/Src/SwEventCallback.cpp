@@ -13,7 +13,7 @@ void onGpsPositionUpdate(const NEDPosition &position){
 }
 
 void onBarometerUpdate(const BarometerOutput &barometerOutput){
-
+	altitudeEstimation.onObserveBarometer(barometerOutput);
 }
 
 void onAltitudeUpdate(const float altitude){
