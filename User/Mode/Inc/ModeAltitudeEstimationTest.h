@@ -26,7 +26,7 @@ public:
 	void initialize(){};
 	void execute(){};
 	void onImuUpdate(){};
-	void onAltitudeUpdate(const uint16_t altitude){};
+	void onAltitudeUpdate(const uint16_t altitude);
 
 	MODE getNextMode();
 };

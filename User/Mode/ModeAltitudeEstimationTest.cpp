@@ -13,4 +13,7 @@ AltitudeEstimationTest::AltitudeEstimationTest(command::CommandManager *commandM
 		:ModeBase(commandManager),_altitudeEstimation(altitudeEstimation){
 
 }
+void AltitudeEstimationTest::onAltitudeUpdate(const uint16_t altitude){
+	commandManager->transmit(command::COMMAND_ID::Altitude);
+}
 }
