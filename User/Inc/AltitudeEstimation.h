@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <cmath>
 #include "Barometer.h"
 
 class AltitudeEstimation {

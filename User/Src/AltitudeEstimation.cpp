@@ -37,7 +37,7 @@ void AltitudeEstimation::exeEstimation(){
 	if(_befBarometerOunpur.pressure == 0){
 		return;
 	}
-	_altitude = ((groundPressure/_befBarometerOunpur.pressure)^1/5.257 - 1)*(_befBarometerOunpur.temperature + 273.15)/0.0065*1000;
+	_altitude = (std::pow((groundPressure/_befBarometerOunpur.pressure),1/5.257) - 1)*(_befBarometerOunpur.temperature + 273.15)/0.0065*1000;
 	_befBarometerOunpur = BarometerOutput();
 	_callback(_altitude);
 }
