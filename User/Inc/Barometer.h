@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <functional>
+#include "LPS25HB.h"
 
 struct BarometerOutput{
 	float pressure = 0;
@@ -19,11 +20,15 @@ struct BarometerOutput{
 class Barometer {
 	std::function<void(const BarometerOutput&)> _callback = [](const BarometerOutput&){};
 	BarometerOutput _output;
+	LPS25HB_STM32_HAL *lps25hb;
+
 public:
-	Barometer();
+	Barometer() = default;
+	Barometer(LPS25HB_STM32_HAL *lps25hb);
+	void init();
+	void update();
 
 	void setCallback(std::function<void(const BarometerOutput&)> callback);
-
 	BarometerOutput& getOutput(){return _output;}
 	const BarometerOutput& getOutput() const {return _output;}
 };
