@@ -27,7 +27,7 @@
 #include "ModeRemoteControl.h"
 #include "ModeAltitudeEstimationTest.h"
 
-#include "CommandManager.h"
+#include "Command/Inc/CommandManager.h"
 
 #include <array>
 

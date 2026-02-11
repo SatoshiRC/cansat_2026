@@ -10,7 +10,8 @@
 
 #include "State.h"
 #include "GPS.h"
-#include "CommandManager.h"
+//#include "CommandManager.h"
+#include "Command/Inc/CommandManager.h"
 
 namespace mode{
 
