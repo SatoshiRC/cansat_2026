@@ -7,3 +7,6 @@
 [submodule "User/Lib/Vector3D"]
 	path = User/Lib/Vector3D
 	url = git@github.com:SatoshiRC/Vector3D.git
+[submodule "User/Lib/Command"]
+	path = User/Lib/Command
+	url = git@github.com:SatoshiRC/cansat_command.git

@@ -1,7 +1,7 @@
 #ifndef COMMAND_EVENT_HPP
 #define COMMAND_EVENT_HPP
 
-#include "CommandManager.h"
+#include "Command/Inc/CommandManager.h"
 #include "Parachute.h"
 #include "State.h"
 #include "NMEA.hpp"
