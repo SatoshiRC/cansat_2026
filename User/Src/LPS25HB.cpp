@@ -99,12 +99,12 @@ uint8_t LPS25HB_STM32_HAL::readData(uint8_t reg){
 }
 
 void LPS25HB_STM32_HAL::write(uint8_t reg, uint8_t *data, uint8_t len){
-	reg &= 0b1<<7;
-	HAL_I2C_Mem_Write_DMA(hi2c, address, reg, 1, data, len);
+	reg |= 0b1<<7;
+	HAL_I2C_Mem_Write_DMA(hi2c, address<<1, reg, 1, data, len);
 }
 void LPS25HB_STM32_HAL::read(uint8_t reg, uint8_t *data, uint8_t len){
-	reg &= 0b1<<7;
-	HAL_I2C_Mem_Read_DMA(hi2c, address, reg, 1, data, len);
+	reg |= 0b1<<7;
+	HAL_I2C_Mem_Read_DMA(hi2c, address<<1, reg, 1, data, len);
 }
 
 void LPS25HB_STM32_HAL::delay(uint8_t ms){
