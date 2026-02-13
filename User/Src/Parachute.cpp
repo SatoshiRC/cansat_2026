@@ -13,6 +13,5 @@ Parachute::Parachute(ServoGripper *left, ServoGripper *right):left(left),right(r
 }
 
 Parachute::~Parachute(){
-	delete left;
-	delete right;
+
 }
