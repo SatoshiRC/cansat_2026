@@ -7,7 +7,9 @@
 
 #include <Barometer.h>
 
-Barometer::Barometer(LPS25HB_STM32_HAL *lps25hb):lps25hb(lps25hb) {
+Barometer::Barometer(LPS25HB_STM32_HAL *lps25hb, GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
+:lps25hb(lps25hb), GPIOx(GPIOx), GPIO_Pin(GPIO_Pin)
+{
 	// TODO Auto-generated constructor stub
 	_output = BarometerOutput();
 

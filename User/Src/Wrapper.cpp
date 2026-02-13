@@ -100,8 +100,10 @@ void init(){
 	drive = Drive(&leftMotor, &rightMotor);
 	drive.enable();
 
-	barometer = Barometer(&lps25hb);
+	barometer = Barometer(&lps25hb, GPIOB, GPIO_PIN_2);
+	barometer.disableIntPin();
 	barometer.init();
+	barometer.enableIntPin();
 	//TODO : configure ICM20948
 	//TODO : configure AK09916 which is implemented in the ICM20948
 

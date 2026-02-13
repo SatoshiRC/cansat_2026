@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <functional>
 #include "LPS25HB.h"
+#include "GPIO.h"
 
 struct BarometerOutput{
 	float pressure = 0;
@@ -21,12 +22,21 @@ class Barometer {
 	std::function<void(const BarometerOutput&)> _callback = [](const BarometerOutput&){};
 	BarometerOutput _output;
 	LPS25HB_STM32_HAL *lps25hb;
+	GPIO_TypeDef *GPIOx;
+	uint16_t GPIO_Pin;
 
 public:
 	Barometer() = default;
-	Barometer(LPS25HB_STM32_HAL *lps25hb);
+	Barometer(LPS25HB_STM32_HAL *lps25hb, GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
 	void init();
 	void update();
+
+	void disableIntPin(){
+		EXTI->IMR &= ~(GPIO_Pin);
+	}
+	void enableIntPin(){
+		EXTI->IMR |= (GPIO_Pin);
+	}
 
 	void setCallback(std::function<void(const BarometerOutput&)> callback);
 	BarometerOutput& getOutput(){return _output;}
