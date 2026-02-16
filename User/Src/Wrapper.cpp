@@ -54,7 +54,7 @@ mode::WakeUp modeWakeUp;
 mode::Ready modeReady;
 mode::Decent modeDecent;
 mode::RemoteControl modeRemoteControl;
-mode::AltitudeEstimationTest modeAttitudeEstimationTest;
+mode::AltitudeEstimationTest modeAltitudeEstimationTest;
 mode::ModeHandler hmode;
 
 command::CommandManager commandManager;
@@ -75,13 +75,13 @@ void init(){
 	modeReady = mode::Ready();
 	modeDecent = mode::Decent(&commandManager, &parachute);
 	modeRemoteControl = mode::RemoteControl(&commandManager, &parachute, &stabilizerServo, &drive, &elapsedTimer);
-	modeAttitudeEstimationTest = mode::AltitudeEstimationTest(&commandManager, &altitudeEstimation);
+	modeAltitudeEstimationTest = mode::AltitudeEstimationTest(&commandManager, &altitudeEstimation);
 
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeWakeUp));
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeReady));
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeDecent));
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeRemoteControl));
-	hmode.registerMode(static_cast<mode::ModeBase*>(&modeAttitudeEstimationTest));
+	hmode.registerMode(static_cast<mode::ModeBase*>(&modeAltitudeEstimationTest));
 
 	hmode.setMode(mode::MODE::WAKE_UP);
 

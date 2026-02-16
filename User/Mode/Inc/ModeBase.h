@@ -24,7 +24,7 @@ enum class MODE{
 	ABSOLUTE_NAVIGATION,
 	GOAL,
 	REMOTE_CONTROL,
-	AttitudeEstimationTest,
+	AltitudeEstimationTest,
 	Last,
 };
 
