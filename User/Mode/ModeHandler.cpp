@@ -9,7 +9,7 @@
 
 namespace mode{
 
-ModeHandler::ModeHandler() {
+ModeHandler::ModeHandler(command::CommandManager *commandManager):commandManager(commandManager) {
 	// TODO Auto-generated constructor stub
 
 }
@@ -36,6 +36,7 @@ void ModeHandler::setMode(MODE mode){
 	if(modeHandlers[static_cast<uint8_t>(mode)] != nullptr){
 		activeMode = mode;
 	}
+	commandManager->transmit(command::COMMAND_ID::Mode);
 }
 
 }
