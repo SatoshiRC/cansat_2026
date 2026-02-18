@@ -7,6 +7,7 @@
 
 #include "Wrapper.hpp"
 #include "usbd_cdc_if.h"
+#include "gpio.h"
 
 #include "usart.h"
 #include "tim.h"
@@ -29,6 +30,7 @@
 #include "ModeAltitudeEstimationTest.h"
 
 #include "Command/Inc/CommandManager.h"
+#include "commandEvent.hpp"
 
 #include <array>
 
@@ -83,6 +85,7 @@ void init(){
 	//configure callback functions
 	//TODO : configure callback functions
 	nmeaProcessor.setPositionCallback(onGpsPositionUpdate);
+	altitudeEstimation.setCallback(onAltitudeUpdate);
 
 	//set up commands
 	commandManager[command::COMMAND_ID::ConnectionCheck] = static_cast<command::Base*>(&connectionCheck);
@@ -113,6 +116,11 @@ void init(){
 
 	hmode.setMode(mode::MODE::WAKE_UP);
 
+    //bind event handler
+    altitude.setUpdate(command::altitudeTransmitEvent);
+    modeCommandHandler.setCallback(command::modeReceiveEvent);
+    modeCommandHandler.setUpdate(command::modeTransmitEvent);
+
 	//construct low-layer features
 	gps = GPS(&state.gps, &nmeaProcessor);
 	lps25hb = LPS25HB_STM32_HAL(&hi2c2, LPS25HB::LPS25HB_Address::Low);
@@ -130,10 +138,16 @@ void init(){
 
 	barometer = Barometer(&lps25hb, GPIOB, GPIO_PIN_2);
 	barometer.disableIntPin();
+	barometer.setCallback(onBarometerUpdate);
 	barometer.init();
+	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_2)){
+		lps25hb.updateRawData();
+	}
 	barometer.enableIntPin();
 	//TODO : configure ICM20948
 	//TODO : configure AK09916 which is implemented in the ICM20948
+
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
 
 }
 
