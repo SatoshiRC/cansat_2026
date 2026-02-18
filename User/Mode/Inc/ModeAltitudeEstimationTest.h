@@ -16,7 +16,7 @@
 namespace mode{
 
 class AltitudeEstimationTest : public ModeBase {
-	static constexpr MODE mode = MODE::AttitudeEstimationTest;
+	static constexpr MODE mode = MODE::AltitudeEstimationTest;
 	AltitudeEstimation *_altitudeEstimation = nullptr;
 protected:
 	MODE nextMode;
