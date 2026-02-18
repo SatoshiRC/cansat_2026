@@ -42,6 +42,10 @@ public:
 	void enableDrive();
 	void disableDrive();
 
+	constexpr MODE getMode(){
+		return mode;
+	}
+
 };
 
 }

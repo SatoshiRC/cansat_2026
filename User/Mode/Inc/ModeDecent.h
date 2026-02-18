@@ -22,6 +22,10 @@ public:
 	Decent(command::CommandManager *commandManager, Parachute *parachute);
 	void execute();
 	void onAltitudeUpdate(const uint16_t altitude);
+
+	constexpr MODE getMode(){
+		return mode;
+	}
 };
 
 }

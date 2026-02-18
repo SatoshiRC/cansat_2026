@@ -19,6 +19,10 @@ public:
 	Ready(command::CommandManager *commandManager);
 	void execute();
 
+	constexpr MODE getMode(){
+		return mode;
+	}
+
 };
 
 }

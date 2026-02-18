@@ -11,14 +11,17 @@
 #include <array>
 
 #include "ModeBase.h"
+#include "Command/Inc/CommandManager.h"
 
 namespace mode {
 
 class ModeHandler {
 	std::array<ModeBase*, static_cast<uint8_t>(MODE::Last)> modeHandlers;
+	command::CommandManager *commandManager;
 	MODE activeMode;
 public:
-	ModeHandler();
+	ModeHandler() = default;
+	ModeHandler(command::CommandManager *commandManager);
 	void executeInloop();
 	void onGpsUpdate(const NEDPosition &position);
 	void onImuUpdate();

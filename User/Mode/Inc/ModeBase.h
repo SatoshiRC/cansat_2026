@@ -37,14 +37,14 @@ protected:
 public:
 	ModeBase():nextMode(mode){};
 	ModeBase(command::CommandManager *commandManager):nextMode(mode),commandManager(commandManager){};
-	void initialize(){};
-	void execute(){};
-	void onGpsUpdate(const NEDPosition &position){};
-	void onImuUpdate(){};
-	void onAltitudeUpdate(const uint16_t altitude){};
+	virtual void initialize(){};
+	virtual void execute(){};
+	virtual void onGpsUpdate(const NEDPosition &position){};
+	virtual void onImuUpdate(){};
+	virtual void onAltitudeUpdate(const uint16_t altitude){};
 
-	MODE getNextMode();
-	constexpr MODE getMode(){
+	virtual MODE getNextMode();
+	virtual constexpr MODE getMode(){
 		return mode;
 	}
 };
