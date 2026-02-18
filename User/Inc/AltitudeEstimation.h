@@ -21,7 +21,7 @@ class AltitudeEstimation {
 
 	uint16_t grouncPressureCalibrationCount = 0;
 	float groundPressure = 0;
-	BarometerOutput _befBarometerOunpur;
+	BarometerOutput _befBarometerOunput;
 public:
 	AltitudeEstimation() = default;
 	AltitudeEstimation(std::function<void(const uint16_t)> callback):_callback(callback){}

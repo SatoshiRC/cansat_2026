@@ -29,15 +29,15 @@ void AltitudeEstimation::onObserveBarometer(const BarometerOutput &barometerOutp
 		}
 		return;
 	}else{
-		_befBarometerOunpur = barometerOutput;
+		_befBarometerOunput = barometerOutput;
 	}
 }
 
 void AltitudeEstimation::exeEstimation(){
-	if(_befBarometerOunpur.pressure == 0){
+	if(_befBarometerOunput.pressure == 0){
 		return;
 	}
-	_altitude = (std::pow((groundPressure/_befBarometerOunpur.pressure),1/5.257) - 1)*(_befBarometerOunpur.temperature + 273.15)/0.0065*1000;
-	_befBarometerOunpur = BarometerOutput();
+	_altitude = (std::pow((groundPressure/_befBarometerOunput.pressure),1/5.257) - 1)*(_befBarometerOunput.temperature + 273.15)/0.0065*1000;
+	_befBarometerOunput = BarometerOutput();
 	_callback(_altitude);
 }
