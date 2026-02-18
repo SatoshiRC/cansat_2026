@@ -6,6 +6,7 @@
  */
 
 #include "Wrapper.hpp"
+#include "usbd_cdc_if.h"
 
 #include "usart.h"
 #include "tim.h"
@@ -58,6 +59,7 @@ mode::AltitudeEstimationTest modeAttitudeEstimationTest;
 mode::ModeHandler hmode;
 
 command::CommandManager commandManager;
+std::array<uint8_t, 64> usbTxBuffer;
 
 void init(){
 	//activate and check low-layer application
@@ -114,6 +116,10 @@ void loop(){
 	hmode.executeInloop();
 }
 
+void usbCdcReceive(uint8_t* first, uint8_t* last){
+	commandManager.receive(first, last);
+}
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 switch(GPIO_Pin){
 case GPIO_PIN_2:
@@ -141,5 +147,10 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 }
 
 void command::CommandManager::transmit(const COMMAND_ID id){
+	if(id == command::COMMAND_ID::Last){
+		return;
+	}
 	auto frame = constructTransmitFrame(id);
+	std::copy(frame.begin(), frame.end(), usbTxBuffer.begin());
+	CDC_Transmit_FS(static_cast<uint8_t*>(usbTxBuffer.begin()), frame.size());
 }

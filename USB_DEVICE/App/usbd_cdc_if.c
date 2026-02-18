@@ -22,7 +22,7 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+#include "wrapper.hpp"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,10 +31,7 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-uint8_t aBuffer[128] = {};
-uint8_t uCursor = 0;
-uint8_t UserRxBufferFS2[APP_RX_DATA_SIZE];
-uint8_t bufferSelector = 0;
+
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -264,20 +261,8 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-	if(Buf == UserRxBufferFS){
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);
-		USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS2);
-	}else if(Buf == UserRxBufferFS2){
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
-		USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
-	}else{
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);
-		USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
-	}
-	CDC_Transmit_FS(Buf, *Len);
+	usbCdcReceive(Buf, Buf+*Len);
+
 	USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 
 
