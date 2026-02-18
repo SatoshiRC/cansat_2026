@@ -59,6 +59,18 @@ mode::AltitudeEstimationTest modeAttitudeEstimationTest;
 mode::ModeHandler hmode;
 
 command::CommandManager commandManager;
+command::ConnectionCheck connectionCheck;
+command::SensorStatus sensorStatus;
+command::Request request;
+command::Goal goal;
+command::Altitude altitude;
+command::Mode modeCommandHandler;
+command::AbsoluteNavigation absoluteNavigation;
+command::RelativeNavigation relativeNavigation;
+command::ServoConfig_prachuteLeft servoConfigParachuteLeft;
+command::ServoConfig_prachuteRight servoConfigParachuteRight;
+command::ServoConfig_stabilizer servoConfigStavilizer;
+
 std::array<uint8_t, 64> usbTxBuffer;
 
 void init(){
@@ -72,6 +84,19 @@ void init(){
 	//TODO : configure callback functions
 	nmeaProcessor.setPositionCallback(onGpsPositionUpdate);
 
+	//set up commands
+	commandManager[command::COMMAND_ID::ConnectionCheck] = static_cast<command::Base*>(&connectionCheck);
+    commandManager[command::COMMAND_ID::SensorStatus] = static_cast<command::Base*>(&sensorStatus);
+    commandManager[command::COMMAND_ID::Request] = static_cast<command::Base*>(&request);
+    commandManager[command::COMMAND_ID::Goal] = static_cast<command::Base*>(&goal);
+    commandManager[command::COMMAND_ID::Altitude] = static_cast<command::Base*>(&altitude);
+    commandManager[command::COMMAND_ID::Mode] = static_cast<command::Base*>(&modeCommandHandler);
+    commandManager[command::COMMAND_ID::AbsoluteNavigationLog] = static_cast<command::Base*>(&absoluteNavigation);
+    commandManager[command::COMMAND_ID::RelativeNavigationLog] = static_cast<command::Base*>(&relativeNavigation);
+    commandManager[command::COMMAND_ID::ServoConfig_prachuteLeft] = static_cast<command::Base*>(&servoConfigParachuteLeft);
+    commandManager[command::COMMAND_ID::ServoConfig_prachuteRight] = static_cast<command::Base*>(&servoConfigParachuteRight);
+    commandManager[command::COMMAND_ID::ServoConfig_stabilizer] = static_cast<command::Base*>(&servoConfigStavilizer);
+
 	//construct mode handler
 	modeWakeUp = mode::WakeUp();
 	modeReady = mode::Ready();
@@ -79,6 +104,7 @@ void init(){
 	modeRemoteControl = mode::RemoteControl(&commandManager, &parachute, &stabilizerServo, &drive, &elapsedTimer);
 	modeAttitudeEstimationTest = mode::AltitudeEstimationTest(&commandManager, &altitudeEstimation);
 
+	hmode = mode::ModeHandler(&commandManager);
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeWakeUp));
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeReady));
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeDecent));
