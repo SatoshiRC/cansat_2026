@@ -24,4 +24,10 @@ void Ready::execute(){
 
 }
 
+void Ready::onAltitudeUpdate(const float altitude){
+	if(altitude > 10*1000){
+		nextMode = MODE::DECENT;
+	}
+}
+
 }

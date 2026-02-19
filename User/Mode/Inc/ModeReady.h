@@ -19,6 +19,7 @@ public:
 	Ready(command::CommandManager *commandManager);
 	void initialize();
 	void execute();
+	void onAltitudeUpdate(const float altitude);
 
 	constexpr MODE getMode(){
 		return mode;
