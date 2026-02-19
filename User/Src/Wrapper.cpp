@@ -72,6 +72,7 @@ command::RelativeNavigation relativeNavigation;
 command::ServoConfig_prachuteLeft servoConfigParachuteLeft;
 command::ServoConfig_prachuteRight servoConfigParachuteRight;
 command::ServoConfig_stabilizer servoConfigStavilizer;
+command::Gps gpsCommand;
 
 std::array<uint8_t, 64> usbTxBuffer;
 
@@ -105,6 +106,7 @@ void init(){
     commandManager[command::COMMAND_ID::ServoConfig_prachuteLeft] = static_cast<command::Base*>(&servoConfigParachuteLeft);
     commandManager[command::COMMAND_ID::ServoConfig_prachuteRight] = static_cast<command::Base*>(&servoConfigParachuteRight);
     commandManager[command::COMMAND_ID::ServoConfig_stabilizer] = static_cast<command::Base*>(&servoConfigStavilizer);
+	commandManager[command::COMMAND_ID::GPS] = static_cast<command::Base*>(&gpsCommand);
 
 	//construct mode handler
 	modeWakeUp = mode::WakeUp();
