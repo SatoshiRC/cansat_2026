@@ -87,6 +87,12 @@ void init(){
 	nmeaProcessor.setPositionCallback(onGpsPositionUpdate);
 	altitudeEstimation.setCallback(onAltitudeUpdate);
 
+	//bind event handler
+    altitude.setUpdate(command::altitudeTransmitEvent);
+    modeCommandHandler.setCallback(command::modeReceiveEvent);
+    modeCommandHandler.setUpdate(command::modeTransmitEvent);
+    gpsCommand.setUpdate(command::gpsTransmitEvent);
+	
 	//set up commands
 	commandManager[command::COMMAND_ID::ConnectionCheck] = static_cast<command::Base*>(&connectionCheck);
     commandManager[command::COMMAND_ID::SensorStatus] = static_cast<command::Base*>(&sensorStatus);
@@ -115,11 +121,6 @@ void init(){
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeAltitudeEstimationTest));
 
 	hmode.setMode(mode::MODE::WAKE_UP);
-
-    //bind event handler
-    altitude.setUpdate(command::altitudeTransmitEvent);
-    modeCommandHandler.setCallback(command::modeReceiveEvent);
-    modeCommandHandler.setUpdate(command::modeTransmitEvent);
 
 	//construct low-layer features
 	gps = GPS(&state.gps, &nmeaProcessor);
