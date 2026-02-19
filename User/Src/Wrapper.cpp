@@ -177,6 +177,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c){
 	if(hi2c == &hi2c1){
 
 	}else if(hi2c == &hi2c2){
+		state.barometer = SENSOR_STATE::Normal;
 		barometer.update();
 	}
 }

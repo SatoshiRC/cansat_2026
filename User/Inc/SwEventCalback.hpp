@@ -19,6 +19,7 @@
 
 extern mode::ModeHandler hmode;
 extern AltitudeEstimation altitudeEstimation;
+extern State state;
 
 /*
  * Sensors Callback Function Prototypes

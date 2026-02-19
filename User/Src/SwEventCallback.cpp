@@ -10,6 +10,7 @@
 void onGpsPositionUpdate(const NEDPosition &position){
 	//TODO: Implement the callback function
 	hmode.onGpsUpdate(position);
+	state.gps = SENSOR_STATE::Normal;
 }
 
 void onBarometerUpdate(const BarometerOutput &barometerOutput){
