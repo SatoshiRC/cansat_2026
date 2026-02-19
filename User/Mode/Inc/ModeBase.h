@@ -45,7 +45,7 @@ public:
 	virtual void onImuUpdate(){};
 	virtual void onAltitudeUpdate(const uint16_t altitude){};
 
-	virtual MODE getNextMode();
+	MODE getNextMode();
 	virtual constexpr MODE getMode(){
 		return mode;
 	}
