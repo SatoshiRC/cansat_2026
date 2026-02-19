@@ -42,6 +42,8 @@ void servoConfigParachuteRightReceiveEvent(CommandDataType::ServoConfig &data);
 
 void servoConfigStabilizerTransmitEvent(CommandDataType::ServoConfig &data);
 void servoConfigStabilizerReceiveEvent(CommandDataType::ServoConfig &data);
+
+void gpsTransmitEvent(CommandDataType::GPS &data);
 } /* namespace command */
 
 #endif /* COMMAND_EVENT_HPP */

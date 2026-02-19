@@ -165,4 +165,11 @@ void servoConfigStabilizerReceiveEvent(CommandDataType::ServoConfig &data){
 	servoConfig->setGripCount(data.closeCount());
 	servoConfig->setCenterCount(data.centerCount());
 }
+
+void gpsTransmitEvent(CommandDataType::GPS &data){
+	auto config = nmeaProcessor.getLastPoint();
+	data.latitude() = config.latitude;
+	data.longitude() = config.longitude;
+	data.fixStatus() = config.valid;
+}
 } /* namespace command */
