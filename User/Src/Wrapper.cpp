@@ -109,7 +109,7 @@ void init(){
 	commandManager[command::COMMAND_ID::GPS] = static_cast<command::Base*>(&gpsCommand);
 
 	//construct mode handler
-	modeWakeUp = mode::WakeUp();
+	modeWakeUp = mode::WakeUp(&nmeaProcessor, &altitudeEstimation);
 	modeReady = mode::Ready();
 	modeDecent = mode::Decent(&commandManager, &parachute);
 	modeRemoteControl = mode::RemoteControl(&commandManager, &parachute, &stabilizerServo, &drive, &elapsedTimer);
