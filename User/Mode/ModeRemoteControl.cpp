@@ -16,7 +16,7 @@ RemoteControl::RemoteControl(command::CommandManager *commandManager, Parachute 
 }
 
 void RemoteControl::initialize(){
-
+	nextMode = mode;
 }
 
 void RemoteControl::execute(){

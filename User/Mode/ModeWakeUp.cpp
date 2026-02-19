@@ -9,9 +9,8 @@
 
 namespace mode{
 
-WakeUp::WakeUp() {
-	// TODO Auto-generated constructor stub
-
+void WakeUp::initialize(){
+	nextMode = mode;
 }
 
 void WakeUp::execute(){

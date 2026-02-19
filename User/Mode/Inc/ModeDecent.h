@@ -20,6 +20,7 @@ class Decent: public ModeBase {
 public:
 	Decent() = default;
 	Decent(command::CommandManager *commandManager, Parachute *parachute);
+	void initialize();
 	void execute();
 	void onAltitudeUpdate(const uint16_t altitude);
 

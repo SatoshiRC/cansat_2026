@@ -15,6 +15,10 @@ Decent::Decent(command::CommandManager *commandManager, Parachute *parachute)
 
 }
 
+void Decent::initialize(){
+	nextMode = mode;
+}
+
 void Decent::execute(){
 
 }

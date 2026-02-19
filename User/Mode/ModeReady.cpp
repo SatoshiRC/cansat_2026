@@ -16,6 +16,10 @@ Ready::Ready(command::CommandManager *commandManager)
 
 }
 
+void Ready::initialize(){
+	nextMode = mode;
+}
+
 void Ready::execute(){
 
 }

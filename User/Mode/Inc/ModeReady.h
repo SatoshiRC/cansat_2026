@@ -17,6 +17,7 @@ class Ready : public ModeBase {
 public:
 	Ready() = default;
 	Ready(command::CommandManager *commandManager);
+	void initialize();
 	void execute();
 
 	constexpr MODE getMode(){

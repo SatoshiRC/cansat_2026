@@ -37,7 +37,9 @@ protected:
 public:
 	ModeBase():nextMode(mode){};
 	ModeBase(command::CommandManager *commandManager):nextMode(mode),commandManager(commandManager){};
-	virtual void initialize(){};
+	virtual void initialize(){
+		nextMode = MODE::Last;
+	};
 	virtual void execute(){};
 	virtual void onGpsUpdate(const NEDPosition &position){};
 	virtual void onImuUpdate(){};

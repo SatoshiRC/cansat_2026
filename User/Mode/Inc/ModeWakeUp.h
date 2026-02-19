@@ -15,8 +15,7 @@ namespace mode{
 class WakeUp : public ModeBase {
 	MODE mode = MODE::WAKE_UP;
 public:
-	WakeUp();
-
+	void initialize();
 	void execute();
 
 	constexpr MODE getMode(){
