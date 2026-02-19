@@ -29,8 +29,7 @@ void NMEAProcessor::setReferencePoint(const GPSPosition& reference) {
 }
 
 void NMEAProcessor::onReceive(const std::vector<uint8_t>& nmeaFrame) {
-	_isLastFrameValid = false;
-    if (nmeaFrame.empty() || nmeaFrame[0] != '$') {
+	if (nmeaFrame.empty() || nmeaFrame[0] != '$') {
         return; // 無効なNMEAフレーム
     }
     
@@ -43,18 +42,21 @@ void NMEAProcessor::onReceive(const std::vector<uint8_t>& nmeaFrame) {
     // GGAまたはRMCセンテンスをパース
     if (frameStr.find("$GPGGA") == 0 || frameStr.find("$GNGGA") == 0) {
         parsed = parseGGA(nmeaFrame, currentPosition);
-    } else if (frameStr.find("$GPRMC") == 0 || frameStr.find("$GNRMC") == 0) {
-        parsed = parseRMC(nmeaFrame, currentPosition);
     }
     
-    if (parsed && currentPosition.valid && referenceSet_) {
-        NEDPosition nedPos = convertToNED(currentPosition, referencePoint_);
-        
-        if (positionCallback_) {
-            positionCallback_(nedPos);
-        }
+    if (parsed && currentPosition.valid){
+    	if(referenceSet_) {
+			NEDPosition nedPos = convertToNED(currentPosition, referencePoint_);
 
-        _isLastFrameValid = true;
+			if (positionCallback_) {
+				positionCallback_(nedPos);
+			}
+
+    	}else{
+    		NEDPosition dummy;
+    		dummy.valid = false;
+    		positionCallback_(dummy);
+    	}
     }
 }
 
@@ -107,9 +109,9 @@ bool NMEAProcessor::parseGGA(const std::vector<uint8_t>& sentence, GPSPosition& 
 	if (!tokens[6].empty()) {
 		quality = std::stoi(tokens[6]);
 	}
+    position.valid = quality;
 
 	if (quality == 0) {
-		position.valid = false;
 		return false;
 	}
 
@@ -119,8 +121,7 @@ bool NMEAProcessor::parseGGA(const std::vector<uint8_t>& sentence, GPSPosition& 
 	} else {
 		position.altitude = 0.0;
 	}
-
-	position.valid = true;
+    
 	return true;
 }
 

@@ -126,6 +126,7 @@ void init(){
 
 	//construct low-layer features
 	gps = GPS(&state.gps, &nmeaProcessor);
+	gps.startReceive();
 	lps25hb = LPS25HB_STM32_HAL(&hi2c2, LPS25HB::LPS25HB_Address::Low);
 
 	parachuteServoLeft = ServoGripper(&state.parachuteServoLeft, &htim13, TIM_CHANNEL_1);

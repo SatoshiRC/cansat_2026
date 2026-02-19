@@ -11,19 +11,21 @@ struct GPSPosition {
     double latitude;   // 緯度（度）
     double longitude;  // 経度（度）
     double altitude;   // 高度（メートル）
-    bool valid;        // データの有効性
+    uint8_t valid;        // データの有効性
 };
 
 struct NEDPosition {
-    double north;      // 北方向距離（メートル）
-    double east;       // 東方向距離（メートル）
-    double down;       // 下方向距離（メートル）
+    float north;      // 北方向距離（メートル）
+    float east;       // 東方向距離（メートル）
+    float down;       // 下方向距離（メートル）
+    bool valid = true;        // データの有効性
 };
 
 class NMEAProcessor {
 private:
     GPSPosition referencePoint_;  // 基準点
     bool referenceSet_;           // 基準点が設定されているか
+    GPSPosition lastPoint_;  // 基準点
     
     // NMEAデータをパースする内部関数
     bool parseGGA(const std::vector<uint8_t>& sentence, GPSPosition& position);
@@ -66,6 +68,10 @@ public:
     
     // 基準点が設定されているかチェック
     bool isReferenceSet() const;
+
+    GPSPosition& getLastPoint(){
+        return lastPoint_;
+    }
 
 private:
     std::function<void(const NEDPosition&)> positionCallback_;
