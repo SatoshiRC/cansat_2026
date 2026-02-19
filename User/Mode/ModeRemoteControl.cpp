@@ -9,7 +9,7 @@
 
 namespace mode{
 
-RemoteControl::RemoteControl(command::CommandManager *commandManager, Parachute *patachute, ServoGripper *stabilizer, Drive *drive, ElapsedTimer *timer)
+RemoteControl::RemoteControl(command::CommandManager *commandManager, Parachute *parachute, ServoGripper *stabilizer, Drive *drive, ElapsedTimer *timer)
 :ModeBase(commandManager),parachute(parachute), stabilizer(stabilizer), drive(drive), timer(timer){
 	// TODO Auto-generated constructor stub
 

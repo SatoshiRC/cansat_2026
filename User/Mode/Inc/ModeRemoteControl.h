@@ -28,7 +28,7 @@ class RemoteControl: public ModeBase {
 
 public:
 	RemoteControl() = default;
-	RemoteControl(command::CommandManager *commandManager, Parachute *patachute, ServoGripper *stabilizer, Drive *drive, ElapsedTimer *timer);
+	RemoteControl(command::CommandManager *commandManager, Parachute *parachute, ServoGripper *stabilizer, Drive *drive, ElapsedTimer *timer);
 	void initialize();
 	void execute();
 
