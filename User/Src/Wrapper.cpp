@@ -215,14 +215,14 @@ void UART2_RX_Byte(){
 }
 
 void command::CommandManager::transmit(const COMMAND_ID id){
-	if(isTransmitting == true){
-		return;
-	}
+//	if(isTransmitting == true){
+//		return;
+//	}
 
 	if(id == command::COMMAND_ID::Last){
 		return;
 	}
-	auto frame = constructTransmitFrame(id);
-	std::copy(frame.begin(), frame.end(), usbTxBuffer.begin());
-	CDC_Transmit_FS(static_cast<uint8_t*>(usbTxBuffer.begin()), frame.size());
+	uint8_t frameLen = 0;
+	constructTransmitFrameToBuffer(id, usbTxBuffer.data(), frameLen);
+	CDC_Transmit_FS(static_cast<uint8_t*>(usbTxBuffer.begin()), frameLen);
 }
