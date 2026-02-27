@@ -11,6 +11,7 @@
 #include <ModeBase.h>
 #include "NMEA.hpp"
 #include "AltitudeEstimation.h"
+#include "Command/Inc/CommandManager.h"
 
 namespace mode{
 
@@ -20,9 +21,10 @@ class WakeUp : public ModeBase {
 	AltitudeEstimation *altitudeEstimation  = nullptr;
 public:
 	WakeUp() = default;
-	WakeUp(NMEAProcessor *nmeaProcessor,
+	WakeUp(command::CommandManager *commandManager,NMEAProcessor *nmeaProcessor,
 			AltitudeEstimation *altitudeEstimation)
-	:nmeaProcessor(nmeaProcessor),
+	:ModeBase(commandManager),
+	 nmeaProcessor(nmeaProcessor),
 	 altitudeEstimation(altitudeEstimation){}
 
 	void initialize();

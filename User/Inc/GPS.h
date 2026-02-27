@@ -26,6 +26,7 @@ class GPS {
 public:
 	GPS(SensorState *state = nullptr, NMEAProcessor *nmeaProcessor = nullptr, UART_HandleTypeDef *huart = &huart2);
 	void startReceive();
+	void onReceive(uint16_t count);
 	void onReceive();
 
 	constexpr UART_HandleTypeDef *getHuart(){

@@ -13,7 +13,13 @@ GPS::GPS(SensorState *state, NMEAProcessor *nmeaProcessor, UART_HandleTypeDef *h
 }
 
 void GPS::startReceive(){
-	HAL_UARTEx_ReceiveToIdle_DMA(huart, (uint8_t*)rBuffer.data(), rBuffer.size());
+	HAL_UARTEx_ReceiveToIdle_IT(huart, (uint8_t*)rBuffer.data(), rBuffer.size());
+}
+
+void GPS::onReceive(uint16_t count){
+	if(rBuffer[count-2] == '\r' && rBuffer[count-1] == '\n'){
+		onReceive();
+	}
 }
 
 void GPS::onReceive(){
@@ -23,4 +29,7 @@ void GPS::onReceive(){
 	if(nmeaProcessor->isLastFrameValid()){
 		*state = SENSOR_STATE::Normal;
 	}
+	HAL_UART_AbortReceive_IT(huart);
+	rBuffer.fill(0);
+	startReceive();
 }

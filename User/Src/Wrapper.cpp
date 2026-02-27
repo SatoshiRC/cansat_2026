@@ -109,7 +109,7 @@ void init(){
 	commandManager[command::COMMAND_ID::GPS] = static_cast<command::Base*>(&gpsCommand);
 
 	//construct mode handler
-	modeWakeUp = mode::WakeUp(&nmeaProcessor, &altitudeEstimation);
+	modeWakeUp = mode::WakeUp(&commandManager, &nmeaProcessor, &altitudeEstimation);
 	modeReady = mode::Ready();
 	modeDecent = mode::Decent(&commandManager, &parachute);
 	modeRemoteControl = mode::RemoteControl(&commandManager, &parachute, &stabilizerServo, &drive, &elapsedTimer);
@@ -158,6 +158,7 @@ void init(){
 void loop(){
 	altitudeEstimation.exeEstimation();
 	hmode.executeInloop();
+	gps.startReceive();
 }
 
 void usbCdcReceive(uint8_t* first, uint8_t* last){
@@ -184,11 +185,18 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c){
 }
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
-	if(huart == gps.getHuart()){
-		if(huart->RxEventType == HAL_UART_RXEVENT_IDLE){
-			gps.onReceive();
-		}
-	}
+//	if(huart == gps.getHuart()){
+//		if(huart->RxEventType == HAL_UART_RXEVENT_TC){
+//			gps.onReceive(huart->RxXferSize - huart->RxXferCount);
+//		}else if(huart->RxEventType == HAL_UART_RXEVENT_IDLE){
+//			gps.onReceive();
+//		}
+//	}
+}
+
+void UART2_RX_Byte(){
+	UART_HandleTypeDef *huart = &huart2;
+	gps.onReceive(huart->RxXferSize - huart->RxXferCount);
 }
 
 void command::CommandManager::transmit(const COMMAND_ID id){

@@ -18,6 +18,7 @@ void init();
 void loop();
 
 void usbCdcReceive(uint8_t* first, uint8_t* last);
+void UART2_RX_Byte();
 
 #ifdef __cplusplus
 };

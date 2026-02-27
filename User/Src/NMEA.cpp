@@ -33,7 +33,6 @@ void NMEAProcessor::onReceive(const std::vector<uint8_t>& nmeaFrame) {
         return; // 無効なNMEAフレーム
     }
     
-    GPSPosition currentPosition;
     bool parsed = false;
     
     // uint8_t配列を文字列に変換して判定
@@ -41,12 +40,12 @@ void NMEAProcessor::onReceive(const std::vector<uint8_t>& nmeaFrame) {
     
     // GGAまたはRMCセンテンスをパース
     if (frameStr.find("$GPGGA") == 0 || frameStr.find("$GNGGA") == 0) {
-        parsed = parseGGA(nmeaFrame, currentPosition);
+        parsed = parseGGA(nmeaFrame, lastPoint_);
     }
     
-    if (parsed && currentPosition.valid){
+    if (parsed && lastPoint_.valid){
     	if(referenceSet_) {
-			NEDPosition nedPos = convertToNED(currentPosition, referencePoint_);
+			NEDPosition nedPos = convertToNED(lastPoint_, referencePoint_);
 
 			if (positionCallback_) {
 				positionCallback_(nedPos);
