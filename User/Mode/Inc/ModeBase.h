@@ -10,6 +10,7 @@
 
 #include "State.h"
 #include "GPS.h"
+#include "ICM20948_USER.h"
 //#include "CommandManager.h"
 #include "Command/Inc/CommandManager.h"
 
@@ -24,7 +25,7 @@ enum class MODE{
 	ABSOLUTE_NAVIGATION,
 	GOAL,
 	REMOTE_CONTROL,
-	AltitudeEstimationTest,
+	Debug,
 	Last,
 };
 
@@ -42,7 +43,7 @@ public:
 	};
 	virtual void execute(){};
 	virtual void onGpsUpdate(const NEDPosition &position){};
-	virtual void onImuUpdate(){};
+	virtual void onImuUpdate(const ImuOutput &imu){};
 	virtual void onAltitudeUpdate(const uint16_t altitude){};
 
 	MODE getNextMode();

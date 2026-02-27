@@ -172,4 +172,10 @@ void gpsTransmitEvent(CommandDataType::GPS &data){
 	data.longitude() = config.longitude;
 	data.fixStatus() = config.valid;
 }
+
+void imuTransmitEvent(CommandDataType::IMU &data){
+	icm20948.getAccel(data.accel());
+	icm20948.getGyro(data.gyro());
+	icm20948.getMagnetometer(data.magnet());
+}
 } /* namespace command */

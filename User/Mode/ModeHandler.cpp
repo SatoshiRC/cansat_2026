@@ -21,8 +21,8 @@ void ModeHandler::executeInloop(){
 void ModeHandler::onGpsUpdate(const NEDPosition &position){
 	modeHandlers[static_cast<uint8_t>(activeMode)]->onGpsUpdate(position);
 };
-void ModeHandler::onImuUpdate(){
-	modeHandlers[static_cast<uint8_t>(activeMode)]->onImuUpdate();
+void ModeHandler::onImuUpdate(const ImuOutput &imu){
+	modeHandlers[static_cast<uint8_t>(activeMode)]->onImuUpdate(imu);
 };
 void ModeHandler::onAltitudeUpdate(const float altitude){
 	modeHandlers[static_cast<uint8_t>(activeMode)]->onAltitudeUpdate(altitude);

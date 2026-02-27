@@ -15,7 +15,7 @@
 #include "elapsedTimer/elapsedTimer.h"
 #include "ModeHandler.h"
 #include "AltitudeEstimation.h"
-
+#include "ICM20948_USER.h"
 
 extern mode::ModeHandler hmode;
 extern AltitudeEstimation altitudeEstimation;
@@ -26,6 +26,7 @@ extern State state;
  */
 void onGpsPositionUpdate(const NEDPosition &position);
 void onBarometerUpdate(const BarometerOutput &barometerOutput);
+void onImuUpdate(const ImuOutput &imuOutput);
 
 /*
  * Algorithm Update Callback Function Prototypes

@@ -16,4 +16,7 @@ AltitudeEstimationTest::AltitudeEstimationTest(command::CommandManager *commandM
 void AltitudeEstimationTest::onAltitudeUpdate(const uint16_t altitude){
 	commandManager->transmit(command::COMMAND_ID::Altitude);
 }
+void AltitudeEstimationTest::onImuUpdate(const ImuOutput &imu){
+	commandManager->transmit(command::COMMAND_ID::IMU);
+}
 }

@@ -24,7 +24,7 @@ public:
 	ModeHandler(command::CommandManager *commandManager);
 	void executeInloop();
 	void onGpsUpdate(const NEDPosition &position);
-	void onImuUpdate();
+	void onImuUpdate(const ImuOutput &imu);
 	void onAltitudeUpdate(const float altitude);
 
 	void registerMode(ModeBase *mode);

@@ -8,6 +8,7 @@
 #include "AltitudeEstimation.h"
 #include "Barometer.h"
 #include "ModeHandler.h"
+#include "ICM20948_USER.h"
 
 extern ServoGripper parachuteServoLeft;
 extern ServoGripper parachuteServoRight;
@@ -18,6 +19,7 @@ extern NMEAProcessor nmeaProcessor;
 extern AltitudeEstimation altitudeEstimation;
 extern Barometer barometer;
 extern mode::ModeHandler hmode;
+extern ICM20948_HAL icm20948;
 
 namespace command{
 void sensorStatusTransmitEvent(CommandDataType::SensorStatus &data);
@@ -44,6 +46,8 @@ void servoConfigStabilizerTransmitEvent(CommandDataType::ServoConfig &data);
 void servoConfigStabilizerReceiveEvent(CommandDataType::ServoConfig &data);
 
 void gpsTransmitEvent(CommandDataType::GPS &data);
+
+void imuTransmitEvent(CommandDataType::IMU &data);
 } /* namespace command */
 
 #endif /* COMMAND_EVENT_HPP */

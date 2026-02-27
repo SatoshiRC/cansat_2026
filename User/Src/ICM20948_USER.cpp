@@ -32,13 +32,13 @@ void ICM20948_USER::init(){
     icm20948->accelConfig(ICM20948::AccelSensitivity::SENS_16G,true,1);
     icm20948->gyroConfig(ICM20948::GyroSensitivity::SENS_2000, true, 1);
 
-    uint8_t tmp=0;
+    uint8_t tmp=22;
     icm20948->memWrite(ICM20948::REGISTER::BANK2::GYRO_SMPLRT_DIV, tmp);
-    tmp=0;
+    tmp=4;
     icm20948->memWrite(ICM20948::REGISTER::BANK2::GYRO_CONFIG_2, tmp);
-    tmp=0;
+    tmp=2;
     icm20948->memWrite(ICM20948::REGISTER::BANK2::ACCEL_CONFIG_2, tmp);
-    tmp=0;
+    tmp=22;
     icm20948->memWrite(ICM20948::REGISTER::BANK2::ACCEL_SMPLRT_DIV_2, tmp);
     icm20948->changeUserBank(ICM20948::REGISTER::BANK::BANK0);
 
@@ -46,6 +46,8 @@ void ICM20948_USER::init(){
     icm20948->intPinConfig(0b00010000);
     icm20948->intenable1();
 //    icm20948->pwrmgmt2(0b0);
+
+    icm20948->initMagnetometer(ICM20948::MagnetometerMode::ContinuesMeasurement_50Hz);
 }
 
 uint16_t ICM20948_USER::calibration(Vector3D<float> &gyro){
@@ -78,4 +80,11 @@ void ICM20948_USER::getIMU(Vector3D<int16_t> &accel, Vector3D<int16_t> &gyro){
 	icm20948->readIMU();
 	accel = icm20948->getRawAccel();
 	gyro = icm20948->getRawGyro();
+}
+
+void ICM20948_USER::update(){
+	icm20948->getAccel(_output.a);
+	icm20948->getGyro(_output.g);
+	icm20948->getMagnetometer(_output.m);
+	_callback(_output);
 }

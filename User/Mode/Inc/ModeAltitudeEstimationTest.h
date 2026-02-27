@@ -16,7 +16,7 @@
 namespace mode{
 
 class AltitudeEstimationTest : public ModeBase {
-	static constexpr MODE mode = MODE::AltitudeEstimationTest;
+	static constexpr MODE mode = MODE::Debug;
 	AltitudeEstimation *_altitudeEstimation = nullptr;
 protected:
 	MODE nextMode;
@@ -25,7 +25,7 @@ public:
 	AltitudeEstimationTest(command::CommandManager *commandManager, AltitudeEstimation *altitudeEstimation);
 	void initialize(){};
 	void execute(){};
-	void onImuUpdate(){};
+	void onImuUpdate(const ImuOutput &imu);
 	void onAltitudeUpdate(const uint16_t altitude);
 
 	constexpr MODE getMode(){

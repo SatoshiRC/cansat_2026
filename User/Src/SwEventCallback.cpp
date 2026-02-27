@@ -20,3 +20,7 @@ void onBarometerUpdate(const BarometerOutput &barometerOutput){
 void onAltitudeUpdate(const float altitude){
 	hmode.onAltitudeUpdate(altitude);
 }
+
+void onImuUpdate(const ImuOutput &imuOutput){
+	hmode.onImuUpdate(imuOutput);
+}

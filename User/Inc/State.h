@@ -31,6 +31,10 @@ struct SensorState{
 
 	void operator=(SENSOR_STATE state){
 		this->state = state;
+		if(timer == nullptr){
+			lastUpdateTic = 0;
+			return;
+		}
 		lastUpdateTic = timer->getCount();
 	}
 private:

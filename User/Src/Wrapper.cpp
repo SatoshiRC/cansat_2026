@@ -8,10 +8,8 @@
 #include "Wrapper.hpp"
 #include "usbd_cdc_if.h"
 #include "gpio.h"
-
 #include "usart.h"
 #include "tim.h"
-#include "gpio.h"
 
 #include "GPS.h"
 #include "NMEA.hpp"
@@ -21,6 +19,7 @@
 #include "Parachute.h"
 #include "Motor.h"
 #include "Drive.h"
+#include "ICM20948_USER.h"
 
 #include "ModeHandler.h"
 #include "ModeWakeUp.h"
@@ -43,13 +42,16 @@ ServoGripper stabilizerServo;
 Motor leftMotor;
 Motor rightMotor;
 GPS gps;
-LPS25HB_STM32_HAL lps25hb;
+LPS25HB_STM32_HAL lps25hb(&hi2c2, LPS25HB::LPS25HB_Address::Low);
+ICM20948_HAL icm20948(&hi2c1, ICM20948::Address::LOW);
+
 
 Parachute parachute;
 Drive drive;
-Barometer barometer;
+Barometer barometer = Barometer(&lps25hb, GPIOB, GPIO_PIN_2);
 NMEAProcessor nmeaProcessor;
 AltitudeEstimation altitudeEstimation;
+ICM20948_USER imu(&icm20948, GPIO_PIN_3);
 
 State state;
 
@@ -73,10 +75,14 @@ command::ServoConfig_prachuteLeft servoConfigParachuteLeft;
 command::ServoConfig_prachuteRight servoConfigParachuteRight;
 command::ServoConfig_stabilizer servoConfigStavilizer;
 command::Gps gpsCommand;
+command::Imu imuCommand;
 
 std::array<uint8_t, 64> usbTxBuffer;
 
 void init(){
+	imu.disableIntPin();
+	barometer.disableIntPin();
+
 	//activate and check low-layer application
 	if(!elapsedTimer.selfTest()){
 		//TODO : elapsed timer error
@@ -93,6 +99,7 @@ void init(){
     modeCommandHandler.setCallback(command::modeReceiveEvent);
     modeCommandHandler.setUpdate(command::modeTransmitEvent);
     gpsCommand.setUpdate(command::gpsTransmitEvent);
+    imuCommand.setUpdate(command::imuTransmitEvent);
 	
 	//set up commands
 	commandManager[command::COMMAND_ID::ConnectionCheck] = static_cast<command::Base*>(&connectionCheck);
@@ -107,6 +114,7 @@ void init(){
     commandManager[command::COMMAND_ID::ServoConfig_prachuteRight] = static_cast<command::Base*>(&servoConfigParachuteRight);
     commandManager[command::COMMAND_ID::ServoConfig_stabilizer] = static_cast<command::Base*>(&servoConfigStavilizer);
 	commandManager[command::COMMAND_ID::GPS] = static_cast<command::Base*>(&gpsCommand);
+	commandManager[command::COMMAND_ID::IMU] = static_cast<command::Base*>(&imuCommand);
 
 	//construct mode handler
 	modeWakeUp = mode::WakeUp(&commandManager, &nmeaProcessor, &altitudeEstimation);
@@ -127,7 +135,6 @@ void init(){
 	//construct low-layer features
 	gps = GPS(&state.gps, &nmeaProcessor);
 	gps.startReceive();
-	lps25hb = LPS25HB_STM32_HAL(&hi2c2, LPS25HB::LPS25HB_Address::Low);
 
 	parachuteServoLeft = ServoGripper(&state.parachuteServoLeft, &htim13, TIM_CHANNEL_1);
 	parachuteServoRight = ServoGripper(&state.parachuteServoRight, &htim2, TIM_CHANNEL_1);
@@ -140,16 +147,19 @@ void init(){
 	drive = Drive(&leftMotor, &rightMotor);
 	drive.enable();
 
-	barometer = Barometer(&lps25hb, GPIOB, GPIO_PIN_2);
-	barometer.disableIntPin();
 	barometer.setCallback(onBarometerUpdate);
 	barometer.init();
 	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_2)){
 		lps25hb.updateRawData();
 	}
-	barometer.enableIntPin();
+//	barometer.enableIntPin();
+
 	//TODO : configure ICM20948
 	//TODO : configure AK09916 which is implemented in the ICM20948
+	imu.confirmConnection();
+	imu.init();
+	imu.setCallback(onImuUpdate);
+	imu.enableIntPin();
 
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
 
@@ -159,6 +169,7 @@ void loop(){
 	altitudeEstimation.exeEstimation();
 	hmode.executeInloop();
 	gps.startReceive();
+	lps25hb.updateRawData();
 }
 
 void usbCdcReceive(uint8_t* first, uint8_t* last){
@@ -170,6 +181,9 @@ switch(GPIO_Pin){
 case GPIO_PIN_2:
 	lps25hb.updateRawData();
 	break;
+case GPIO_PIN_3:
+	icm20948.readImuDma();
+	break;
 default:
 	break;
 }
@@ -177,7 +191,8 @@ default:
 
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c){
 	if(hi2c == &hi2c1){
-
+		state.imu = SENSOR_STATE::Normal;
+		imu.update();
 	}else if(hi2c == &hi2c2){
 		state.barometer = SENSOR_STATE::Normal;
 		barometer.update();
@@ -200,6 +215,10 @@ void UART2_RX_Byte(){
 }
 
 void command::CommandManager::transmit(const COMMAND_ID id){
+	if(isTransmitting == true){
+		return;
+	}
+
 	if(id == command::COMMAND_ID::Last){
 		return;
 	}
