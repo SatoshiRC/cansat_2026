@@ -24,11 +24,19 @@ void WakeUp::execute(){
 		return;
 	}
 
-	nextMode = MODE::READY;
+	if(_resumeFrom != MODE::Last){
+		nextMode = _resumeFrom;
+		_resumeFrom = MODE::Last;
+	}else{
+		nextMode = MODE::READY;
+	}
 }
 
 void WakeUp::onGpsUpdate(const NEDPosition &position){
-	commandManager->transmit(command::COMMAND_ID::GPS);
+
 }
 
+void WakeUp::resumeFrom(MODE from){
+	_resumeFrom = from;
+}
 }

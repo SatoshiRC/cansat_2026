@@ -9,6 +9,8 @@
 #include "Barometer.h"
 #include "ModeHandler.h"
 #include "ICM20948_USER.h"
+#include "config.h"
+#include "CAT24M01EEPROM.h"
 
 extern ServoGripper parachuteServoLeft;
 extern ServoGripper parachuteServoRight;
@@ -20,6 +22,8 @@ extern AltitudeEstimation altitudeEstimation;
 extern Barometer barometer;
 extern mode::ModeHandler hmode;
 extern ICM20948_HAL icm20948;
+extern Config config;
+extern CAT24M01_EEPROM eeprom;
 
 namespace command{
 void sensorStatusTransmitEvent(CommandDataType::SensorStatus &data);
@@ -48,6 +52,8 @@ void servoConfigStabilizerReceiveEvent(CommandDataType::ServoConfig &data);
 void gpsTransmitEvent(CommandDataType::GPS &data);
 
 void imuTransmitEvent(CommandDataType::IMU &data);
+
+void saveConfingReceiveEvent();
 } /* namespace command */
 
 #endif /* COMMAND_EVENT_HPP */

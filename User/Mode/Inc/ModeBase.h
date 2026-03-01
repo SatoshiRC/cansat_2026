@@ -41,6 +41,7 @@ public:
 	virtual void initialize(){
 		nextMode = MODE::Last;
 	};
+	virtual void finalize(){};
 	virtual void execute(){};
 	virtual void onGpsUpdate(const NEDPosition &position){};
 	virtual void onImuUpdate(const ImuOutput &imu){};

@@ -27,6 +27,7 @@ public:
 	void execute(){};
 	void onImuUpdate(const ImuOutput &imu);
 	void onAltitudeUpdate(const uint16_t altitude);
+	void onGpsUpdate(const NEDPosition &position);
 
 	constexpr MODE getMode(){
 		return mode;

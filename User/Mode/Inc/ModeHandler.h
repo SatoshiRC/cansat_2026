@@ -12,16 +12,19 @@
 
 #include "ModeBase.h"
 #include "Command/Inc/CommandManager.h"
+#include "config.h"
+#include "CAT24M01EEPROM.h"
 
 namespace mode {
 
 class ModeHandler {
 	std::array<ModeBase*, static_cast<uint8_t>(MODE::Last)> modeHandlers;
 	command::CommandManager *commandManager;
-	MODE activeMode;
+	MODE activeMode = MODE::WAKE_UP;
+	Config *_config;
+	CAT24M01_EEPROM *eeprom;
 public:
-	ModeHandler() = default;
-	ModeHandler(command::CommandManager *commandManager);
+	ModeHandler(command::CommandManager *commandManager, Config *config, CAT24M01_EEPROM *eeprom);
 	void executeInloop();
 	void onGpsUpdate(const NEDPosition &position);
 	void onImuUpdate(const ImuOutput &imu);

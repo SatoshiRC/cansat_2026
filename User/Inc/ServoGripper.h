@@ -10,26 +10,12 @@
 
 #include "tim.h"
 #include "State.h"
+#include "config.h"
 
 enum class SERVO_STATE{
 	CENTER = 0,
 	RELEASE,
 	GRIP
-};
-
-struct ServoGripperConfig{
-	uint16_t releaseCount;
-	uint16_t centerCount;
-	uint16_t gripCount;
-
-	ServoGripperConfig(
-			uint16_t releaseCount = 0,
-			uint16_t centerCount = 0,
-			uint16_t gripCount = 0
-			)
-		:releaseCount(releaseCount),
-		centerCount(centerCount),
-		gripCount(gripCount){}
 };
 
 class ServoGripper {
@@ -39,9 +25,9 @@ class ServoGripper {
 	TIM_HandleTypeDef *htim;
 	uint32_t channel;
 
-	ServoGripperConfig _config;
+	ServoGripperConfig *_config;
 public:
-	ServoGripper(ActuatorState *state = nullptr, TIM_HandleTypeDef *htim = nullptr, uint32_t channel = 0, ServoGripperConfig config = ServoGripperConfig());
+	ServoGripper(ActuatorState *state = nullptr, TIM_HandleTypeDef *htim = nullptr, uint32_t channel = 0, ServoGripperConfig *config = new ServoGripperConfig());
 
 	//configuration functions
 	void setReleaseCount(uint16_t count);
@@ -50,7 +36,7 @@ public:
 	uint16_t getReleaseCount();
 	uint16_t getGripCount();
 	uint16_t getCenterCount();
-	ServoGripperConfig& config(){
+	ServoGripperConfig* config(){
 		return _config;
 	}
 	SERVO_STATE getServoState(){

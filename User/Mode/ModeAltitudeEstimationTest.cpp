@@ -19,4 +19,7 @@ void AltitudeEstimationTest::onAltitudeUpdate(const uint16_t altitude){
 void AltitudeEstimationTest::onImuUpdate(const ImuOutput &imu){
 	commandManager->transmit(command::COMMAND_ID::IMU);
 }
+void AltitudeEstimationTest::onGpsUpdate(const NEDPosition &position){
+	commandManager->transmit(command::COMMAND_ID::GPS);
+}
 }

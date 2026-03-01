@@ -9,7 +9,10 @@
 
 namespace mode{
 
-ModeHandler::ModeHandler(command::CommandManager *commandManager):commandManager(commandManager) {
+ModeHandler::ModeHandler(command::CommandManager *commandManager, Config *config, CAT24M01_EEPROM *eeprom)
+		:commandManager(commandManager),
+		 _config(config),
+		 eeprom(eeprom){
 	// TODO Auto-generated constructor stub
 
 }
@@ -33,8 +36,16 @@ void ModeHandler::registerMode(ModeBase *mode){
 }
 
 void ModeHandler::setMode(MODE mode){
+	if(mode == activeMode){
+		//When the given mode and current mode are same, don't do anything.
+		return;
+	}
+
 	if(modeHandlers[static_cast<uint8_t>(mode)] != nullptr){
+		modeHandlers[static_cast<uint8_t>(activeMode)]->finalize();
 		activeMode = mode;
+		eeprom->write();
+		modeHandlers[static_cast<uint8_t>(activeMode)]->initialize();
 	}
 	commandManager->transmit(command::COMMAND_ID::Mode);
 }

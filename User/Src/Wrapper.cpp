@@ -20,6 +20,7 @@
 #include "Motor.h"
 #include "Drive.h"
 #include "ICM20948_USER.h"
+#include "CAT24M01EEPROM.h"
 
 #include "ModeHandler.h"
 #include "ModeWakeUp.h"
@@ -27,40 +28,34 @@
 #include "ModeDecent.h"
 #include "ModeRemoteControl.h"
 #include "ModeAltitudeEstimationTest.h"
+#include "AbsoluteNavigation.h"
 
 #include "Command/Inc/CommandManager.h"
 #include "commandEvent.hpp"
 
+
 #include <array>
 
 ElapsedTimer elapsedTimer(&htim2);
+State state(&elapsedTimer);
+Config config;
 
-
-ServoGripper parachuteServoLeft;
-ServoGripper parachuteServoRight;
-ServoGripper stabilizerServo;
+ServoGripper parachuteServoLeft(&state.parachuteServoRight, &htim13, TIM_CHANNEL_1, &config.parachuteLeft);
+ServoGripper parachuteServoRight(&state.parachuteServoRight, &htim2, TIM_CHANNEL_1, &config.parachuteRight);
+ServoGripper stabilizerServo(&state.stabilizerServo, &htim14, TIM_CHANNEL_1, &config.stabilizer);
 Motor leftMotor;
 Motor rightMotor;
-GPS gps;
+GPS gps(&state.gps, &nmeaProcessor);
 LPS25HB_STM32_HAL lps25hb(&hi2c2, LPS25HB::LPS25HB_Address::Low);
 ICM20948_HAL icm20948(&hi2c1, ICM20948::Address::LOW);
+CAT24M01_EEPROM eeprom(&hi2c1, &config);
 
-
-Parachute parachute;
-Drive drive;
+Parachute parachute(&parachuteServoLeft, &parachuteServoRight);
+Drive drive(&leftMotor, &rightMotor);
 Barometer barometer = Barometer(&lps25hb, GPIOB, GPIO_PIN_2);
 NMEAProcessor nmeaProcessor;
 AltitudeEstimation altitudeEstimation;
 ICM20948_USER imu(&icm20948, GPIO_PIN_3);
-
-State state;
-
-mode::WakeUp modeWakeUp;
-mode::Ready modeReady;
-mode::Decent modeDecent;
-mode::RemoteControl modeRemoteControl;
-mode::AltitudeEstimationTest modeAltitudeEstimationTest;
-mode::ModeHandler hmode;
 
 command::CommandManager commandManager;
 command::ConnectionCheck connectionCheck;
@@ -73,9 +68,17 @@ command::AbsoluteNavigation absoluteNavigation;
 command::RelativeNavigation relativeNavigation;
 command::ServoConfig_prachuteLeft servoConfigParachuteLeft;
 command::ServoConfig_prachuteRight servoConfigParachuteRight;
-command::ServoConfig_stabilizer servoConfigStavilizer;
+command::ServoConfig_stabilizer servoConfigStabilizer;
 command::Gps gpsCommand;
 command::Imu imuCommand;
+
+mode::WakeUp modeWakeUp(&commandManager, &nmeaProcessor, &altitudeEstimation);
+mode::Ready modeReady;
+mode::Decent modeDecent(&commandManager, &parachute, &drive, &elapsedTimer);
+mode::RemoteControl modeRemoteControl(&commandManager, &parachute, &stabilizerServo, &drive, &elapsedTimer);
+mode::AltitudeEstimationTest modeAltitudeEstimationTest(&commandManager, &altitudeEstimation);
+mode::AbsoluteNavigation modeAbsoluteNavigation(&commandManager, config.magnetOffset);
+mode::ModeHandler hmode(&commandManager, &config, &eeprom);
 
 std::array<uint8_t, 64> usbTxBuffer;
 
@@ -87,7 +90,9 @@ void init(){
 	if(!elapsedTimer.selfTest()){
 		//TODO : elapsed timer error
 	}
-	state = State(&elapsedTimer);
+
+	eeprom.read();
+	nmeaProcessor.setReferencePoint(config.goal.latitude, config.goal.longitude);
 
 	//configure callback functions
 	//TODO : configure callback functions
@@ -100,6 +105,12 @@ void init(){
     modeCommandHandler.setUpdate(command::modeTransmitEvent);
     gpsCommand.setUpdate(command::gpsTransmitEvent);
     imuCommand.setUpdate(command::imuTransmitEvent);
+    servoConfigParachuteLeft.setCallback(command::servoConfigParachuteLeftReceiveEvent);
+    servoConfigParachuteLeft.setUpdate(command::servoConfigParachuteLeftTransmitEvent);
+    servoConfigParachuteRight.setCallback(command::servoConfigParachuteRightReceiveEvent);
+	servoConfigParachuteRight.setUpdate(command::servoConfigParachuteRightTransmitEvent);
+	servoConfigStabilizer.setCallback(command::servoConfigStabilizerReceiveEvent);
+	servoConfigStabilizer.setUpdate(command::servoConfigStabilizerTransmitEvent);
 	
 	//set up commands
 	commandManager[command::COMMAND_ID::ConnectionCheck] = static_cast<command::Base*>(&connectionCheck);
@@ -112,50 +123,40 @@ void init(){
     commandManager[command::COMMAND_ID::RelativeNavigationLog] = static_cast<command::Base*>(&relativeNavigation);
     commandManager[command::COMMAND_ID::ServoConfig_prachuteLeft] = static_cast<command::Base*>(&servoConfigParachuteLeft);
     commandManager[command::COMMAND_ID::ServoConfig_prachuteRight] = static_cast<command::Base*>(&servoConfigParachuteRight);
-    commandManager[command::COMMAND_ID::ServoConfig_stabilizer] = static_cast<command::Base*>(&servoConfigStavilizer);
+    commandManager[command::COMMAND_ID::ServoConfig_stabilizer] = static_cast<command::Base*>(&servoConfigStabilizer);
 	commandManager[command::COMMAND_ID::GPS] = static_cast<command::Base*>(&gpsCommand);
 	commandManager[command::COMMAND_ID::IMU] = static_cast<command::Base*>(&imuCommand);
 
-	//construct mode handler
-	modeWakeUp = mode::WakeUp(&commandManager, &nmeaProcessor, &altitudeEstimation);
-	modeReady = mode::Ready();
-	modeDecent = mode::Decent(&commandManager, &parachute);
-	modeRemoteControl = mode::RemoteControl(&commandManager, &parachute, &stabilizerServo, &drive, &elapsedTimer);
-	modeAltitudeEstimationTest = mode::AltitudeEstimationTest(&commandManager, &altitudeEstimation);
-
-	hmode = mode::ModeHandler(&commandManager);
+	//set up mode handler
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeWakeUp));
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeReady));
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeDecent));
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeRemoteControl));
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeAltitudeEstimationTest));
 
-	hmode.setMode(mode::MODE::WAKE_UP);
+	if(config.activeMode >= static_cast<uint8_t>(mode::MODE::DECENT) && config.activeMode <= static_cast<uint8_t>(mode::MODE::GOAL)){
+		// resume operation
+		modeWakeUp.resumeFrom(static_cast<mode::MODE>(config.activeMode));
+	}
 
 	//construct low-layer features
-	gps = GPS(&state.gps, &nmeaProcessor);
 	gps.startReceive();
 
-	parachuteServoLeft = ServoGripper(&state.parachuteServoLeft, &htim13, TIM_CHANNEL_1);
-	parachuteServoRight = ServoGripper(&state.parachuteServoRight, &htim2, TIM_CHANNEL_1);
-	stabilizerServo = ServoGripper(&state.stabilizerServo, &htim14, TIM_CHANNEL_1);
-
 	//configure and activate features
-	parachute = Parachute(&parachuteServoLeft, &parachuteServoRight);
 	parachute.enable();
-
-	drive = Drive(&leftMotor, &rightMotor);
+	parachute.grip();
+	stabilizerServo.enable();
+	stabilizerServo.grip();
 	drive.enable();
+
 
 	barometer.setCallback(onBarometerUpdate);
 	barometer.init();
 	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_2)){
 		lps25hb.updateRawData();
 	}
-//	barometer.enableIntPin();
+	barometer.enableIntPin();
 
-	//TODO : configure ICM20948
-	//TODO : configure AK09916 which is implemented in the ICM20948
 	imu.confirmConnection();
 	imu.init();
 	imu.setCallback(onImuUpdate);
@@ -169,7 +170,9 @@ void loop(){
 	altitudeEstimation.exeEstimation();
 	hmode.executeInloop();
 	gps.startReceive();
-	lps25hb.updateRawData();
+	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_2)){
+		lps25hb.updateRawData();
+	}
 }
 
 void usbCdcReceive(uint8_t* first, uint8_t* last){
@@ -213,6 +216,24 @@ void UART2_RX_Byte(){
 	UART_HandleTypeDef *huart = &huart2;
 	gps.onReceive(huart->RxXferSize - huart->RxXferCount);
 }
+
+//void command::CommandManager::forceTransmit(const COMMAND_ID id){
+////	if(isTransmitting == true){
+////		return;
+////	}
+//
+//	if(id == command::COMMAND_ID::Last){
+//		return;
+//	}
+//	uint8_t frameLen = 0;
+//	constructTransmitFrameToBuffer(id, usbTxBuffer.data(), frameLen);
+//
+//	uint8_t ret = 0;
+//	do{
+//		ret = (CDC_Transmit_FS(static_cast<uint8_t*>(usbTxBuffer.begin()), frameLen));
+//	}while(ret);
+//}
+
 
 void command::CommandManager::transmit(const COMMAND_ID id){
 //	if(isTransmitting == true){

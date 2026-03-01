@@ -11,6 +11,8 @@ void sensorStatusTransmitEvent(CommandDataType::SensorStatus &data){
 }
 
 void goalReceiveEvent(CommandDataType::Coordinates &data){
+	config.goal.latitude = data.latitude();
+	config.goal.longitude = data.longitude();
 	nmeaProcessor.setReferencePoint(data.latitude(), data.longitude());
 }
 void goalTransmitEvent(CommandDataType::Coordinates &data){
@@ -63,6 +65,9 @@ void servoConfigParachuteLeftTransmitEvent(CommandDataType::ServoConfig &data){
 }
 void servoConfigParachuteLeftReceiveEvent(CommandDataType::ServoConfig &data){
 	auto servoConfig = &parachuteServoLeft;
+	servoConfig->setReleaseCount(data.openCount());
+	servoConfig->setGripCount(data.closeCount());
+	servoConfig->setCenterCount(data.centerCount());
 	switch(data.state()){
 		case CommandDataType::ServoState::Disabled:
 			servoConfig->disable();
@@ -77,9 +82,6 @@ void servoConfigParachuteLeftReceiveEvent(CommandDataType::ServoConfig &data){
 			servoConfig->center();
 			break;
 	}
-	servoConfig->setReleaseCount(data.openCount());
-	servoConfig->setGripCount(data.closeCount());
-	servoConfig->setCenterCount(data.centerCount());
 }
 
 void servoConfigParachuteRightTransmitEvent(CommandDataType::ServoConfig &data){
@@ -105,6 +107,9 @@ void servoConfigParachuteRightTransmitEvent(CommandDataType::ServoConfig &data){
 }
 void servoConfigParachuteRightReceiveEvent(CommandDataType::ServoConfig &data){
 	auto servoConfig = &parachuteServoRight;
+	servoConfig->setReleaseCount(data.openCount());
+	servoConfig->setGripCount(data.closeCount());
+	servoConfig->setCenterCount(data.centerCount());
 	switch(data.state()){
 		case CommandDataType::ServoState::Disabled:
 			servoConfig->disable();
@@ -119,9 +124,6 @@ void servoConfigParachuteRightReceiveEvent(CommandDataType::ServoConfig &data){
 			servoConfig->center();
 			break;
 	}
-	servoConfig->setReleaseCount(data.openCount());
-	servoConfig->setGripCount(data.closeCount());
-	servoConfig->setCenterCount(data.centerCount());
 }
 
 void servoConfigStabilizerTransmitEvent(CommandDataType::ServoConfig &data){
@@ -147,6 +149,9 @@ void servoConfigStabilizerTransmitEvent(CommandDataType::ServoConfig &data){
 }
 void servoConfigStabilizerReceiveEvent(CommandDataType::ServoConfig &data){
 	auto servoConfig = &stabilizerServo;
+	servoConfig->setReleaseCount(data.openCount());
+	servoConfig->setGripCount(data.closeCount());
+	servoConfig->setCenterCount(data.centerCount());
 	switch(data.state()){
 		case CommandDataType::ServoState::Disabled:
 			servoConfig->disable();
@@ -161,9 +166,6 @@ void servoConfigStabilizerReceiveEvent(CommandDataType::ServoConfig &data){
 			servoConfig->center();
 			break;
 	}
-	servoConfig->setReleaseCount(data.openCount());
-	servoConfig->setGripCount(data.closeCount());
-	servoConfig->setCenterCount(data.centerCount());
 }
 
 void gpsTransmitEvent(CommandDataType::GPS &data){
@@ -177,5 +179,9 @@ void imuTransmitEvent(CommandDataType::IMU &data){
 	icm20948.getAccel(data.accel());
 	icm20948.getGyro(data.gyro());
 	icm20948.getMagnetometer(data.magnet());
+}
+
+void SaveConfigReceiveEvent(){
+	eeprom.write();
 }
 } /* namespace command */

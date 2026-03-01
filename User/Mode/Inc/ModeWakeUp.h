@@ -17,6 +17,7 @@ namespace mode{
 
 class WakeUp : public ModeBase {
 	MODE mode = MODE::WAKE_UP;
+	MODE _resumeFrom = MODE::Last;
 	NMEAProcessor *nmeaProcessor = nullptr;
 	AltitudeEstimation *altitudeEstimation  = nullptr;
 public:
@@ -30,6 +31,7 @@ public:
 	void initialize();
 	void execute();
 	void onGpsUpdate(const NEDPosition &position);
+	void resumeFrom(MODE from);
 
 	constexpr MODE getMode(){
 		return mode;
