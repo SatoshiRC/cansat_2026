@@ -11,6 +11,14 @@ namespace mode{
 
 void WakeUp::initialize(){
 	nextMode = mode;
+	commandManager->transmit(command::COMMAND_ID::ServoConfig_prachuteLeft);
+	HAL_Delay(10);
+	commandManager->transmit(command::COMMAND_ID::ServoConfig_prachuteRight);
+	HAL_Delay(10);
+	commandManager->transmit(command::COMMAND_ID::ServoConfig_stabilizer);
+	HAL_Delay(10);
+	commandManager->transmit(command::COMMAND_ID::Goal);
+	HAL_Delay(10);
 }
 
 void WakeUp::execute(){

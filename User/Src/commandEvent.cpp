@@ -35,7 +35,8 @@ void modeTransmitEvent(uint8_t& data){
 }
 
 void absoluteNavigationTransmitEvent(CommandDataType::AbsoluteNavigation &data){
-
+	data.leftMotorPower() = drive.left()->getPower();
+	data.rightMotorPower() = drive.right()->getPower();
 }
 
 void relativeNavigationTransmitEvent(CommandDataType::RelativeNavigation &data){
@@ -183,5 +184,13 @@ void imuTransmitEvent(CommandDataType::IMU &data){
 
 void SaveConfigReceiveEvent(){
 	eeprom.write();
+}
+
+void decentLogTransmitEvent(CommandDataType::DecentLog &data){
+	data.altitude = altitudeEstimation.getAltitude();
+	data.isParachuteReleased = parachuteServoLeft.getServoState() == SERVO_STATE::RELEASE;
+	data.isStabilizerDeploied = stabilizerServo.getServoState() == SERVO_STATE::RELEASE;
+	data.leftMotorPower = drive.left()->getPower();
+	data.rightMotorPower = drive.right()->getPower();
 }
 } /* namespace command */

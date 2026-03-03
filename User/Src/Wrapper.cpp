@@ -43,8 +43,8 @@ Config config;
 ServoGripper parachuteServoLeft(&state.parachuteServoRight, &htim13, TIM_CHANNEL_1, &config.parachuteLeft);
 ServoGripper parachuteServoRight(&state.parachuteServoRight, &htim2, TIM_CHANNEL_1, &config.parachuteRight);
 ServoGripper stabilizerServo(&state.stabilizerServo, &htim14, TIM_CHANNEL_1, &config.stabilizer);
-Motor leftMotor;
-Motor rightMotor;
+Motor leftMotor(&htim3, TIM_CHANNEL_4, TIM_CHANNEL_3, 1000);
+Motor rightMotor(&htim3, TIM_CHANNEL_2, TIM_CHANNEL_1, 1000);
 GPS gps(&state.gps, &nmeaProcessor);
 LPS25HB_STM32_HAL lps25hb(&hi2c2, LPS25HB::LPS25HB_Address::Low);
 ICM20948_HAL icm20948(&hi2c1, ICM20948::Address::LOW);
@@ -71,16 +71,18 @@ command::ServoConfig_prachuteRight servoConfigParachuteRight;
 command::ServoConfig_stabilizer servoConfigStabilizer;
 command::Gps gpsCommand;
 command::Imu imuCommand;
+command::DecentLog decentLog;
 
 mode::WakeUp modeWakeUp(&commandManager, &nmeaProcessor, &altitudeEstimation);
-mode::Ready modeReady;
+mode::Ready modeReady(&commandManager, &config);
 mode::Decent modeDecent(&commandManager, &parachute, &drive, &elapsedTimer);
 mode::RemoteControl modeRemoteControl(&commandManager, &parachute, &stabilizerServo, &drive, &elapsedTimer);
 mode::AltitudeEstimationTest modeAltitudeEstimationTest(&commandManager, &altitudeEstimation);
-mode::AbsoluteNavigation modeAbsoluteNavigation(&commandManager, config.magnetOffset);
+mode::AbsoluteNavigation modeAbsoluteNavigation(&commandManager, &elapsedTimer, &drive, &config);
 mode::ModeHandler hmode(&commandManager, &config, &eeprom);
 
 std::array<uint8_t, 64> usbTxBuffer;
+std::array<uint8_t, 64> xbeeRxBuffer = {};
 
 void init(){
 	imu.disableIntPin();
@@ -111,6 +113,10 @@ void init(){
 	servoConfigParachuteRight.setUpdate(command::servoConfigParachuteRightTransmitEvent);
 	servoConfigStabilizer.setCallback(command::servoConfigStabilizerReceiveEvent);
 	servoConfigStabilizer.setUpdate(command::servoConfigStabilizerTransmitEvent);
+	goal.setCallback(command::goalReceiveEvent);
+	goal.setUpdate(command::goalTransmitEvent);
+	decentLog.setCallback(command::decentLogTransmitEvent);
+	relativeNavigation.setUpdate(command::relativeNavigationTransmitEvent);
 	
 	//set up commands
 	commandManager[command::COMMAND_ID::ConnectionCheck] = static_cast<command::Base*>(&connectionCheck);
@@ -119,6 +125,7 @@ void init(){
     commandManager[command::COMMAND_ID::Goal] = static_cast<command::Base*>(&goal);
     commandManager[command::COMMAND_ID::Altitude] = static_cast<command::Base*>(&altitude);
     commandManager[command::COMMAND_ID::Mode] = static_cast<command::Base*>(&modeCommandHandler);
+    commandManager[command::COMMAND_ID::DecentLog] = static_cast<command::Base*>(&decentLog);
     commandManager[command::COMMAND_ID::AbsoluteNavigationLog] = static_cast<command::Base*>(&absoluteNavigation);
     commandManager[command::COMMAND_ID::RelativeNavigationLog] = static_cast<command::Base*>(&relativeNavigation);
     commandManager[command::COMMAND_ID::ServoConfig_prachuteLeft] = static_cast<command::Base*>(&servoConfigParachuteLeft);
@@ -131,6 +138,7 @@ void init(){
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeWakeUp));
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeReady));
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeDecent));
+	hmode.registerMode(static_cast<mode::ModeBase*>(&modeAbsoluteNavigation));
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeRemoteControl));
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeAltitudeEstimationTest));
 
@@ -138,6 +146,8 @@ void init(){
 		// resume operation
 		modeWakeUp.resumeFrom(static_cast<mode::MODE>(config.activeMode));
 	}
+	modeWakeUp.initialize();
+
 
 	//construct low-layer features
 	gps.startReceive();
@@ -148,6 +158,7 @@ void init(){
 	stabilizerServo.enable();
 	stabilizerServo.grip();
 	drive.enable();
+	drive.brake();
 
 
 	barometer.setCallback(onBarometerUpdate);
@@ -167,12 +178,14 @@ void init(){
 }
 
 void loop(){
+	commandManager.processReceive();
 	altitudeEstimation.exeEstimation();
 	hmode.executeInloop();
 	gps.startReceive();
 	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_2)){
 		lps25hb.updateRawData();
 	}
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart1, xbeeRxBuffer.data(), xbeeRxBuffer.size());
 }
 
 void usbCdcReceive(uint8_t* first, uint8_t* last){
@@ -202,7 +215,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c){
 	}
 }
 
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t size){
 //	if(huart == gps.getHuart()){
 //		if(huart->RxEventType == HAL_UART_RXEVENT_TC){
 //			gps.onReceive(huart->RxXferSize - huart->RxXferCount);
@@ -210,6 +223,11 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 //			gps.onReceive();
 //		}
 //	}
+	if(huart == &huart1){
+		//xbee callback
+		commandManager.receive(xbeeRxBuffer.data(),xbeeRxBuffer.data()+size);
+		HAL_UARTEx_ReceiveToIdle_DMA(&huart1, xbeeRxBuffer.data(), xbeeRxBuffer.size());
+	}
 }
 
 void UART2_RX_Byte(){
@@ -246,4 +264,5 @@ void command::CommandManager::transmit(const COMMAND_ID id){
 	uint8_t frameLen = 0;
 	constructTransmitFrameToBuffer(id, usbTxBuffer.data(), frameLen);
 	CDC_Transmit_FS(static_cast<uint8_t*>(usbTxBuffer.begin()), frameLen);
+	HAL_UART_Transmit_DMA(&huart1, usbTxBuffer.data(), frameLen);
 }

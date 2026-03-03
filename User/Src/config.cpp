@@ -33,6 +33,10 @@ std::array<uint8_t, Config::len> Config::convertToArray(){
 
 	std::copy((uint8_t*)magnetOffset.begin(),(uint8_t*)magnetOffset.end(), res.begin()+offset);
 	offset += 12;
+	std::copy((uint8_t*)magnetMax.begin(),(uint8_t*)magnetMax.end(), res.begin()+offset);
+	offset += 12;
+	std::copy((uint8_t*)magnetMin.begin(),(uint8_t*)magnetMin.end(), res.begin()+offset);
+	offset += 12;
 
 
 	return res;
@@ -57,7 +61,11 @@ void Config::parseArray(std::array<uint8_t, len>& data){
 	std::copy(data.data()+offset, data.data()+offset+1, &activeMode);
 	offset += 1;
 
-	std::copy(data.data()+offset, data.data()+offset+12, p);
+	std::copy(data.data()+offset, data.data()+offset+12, (uint8_t*)magnetOffset.begin());
+	offset += 12;
+	std::copy(data.data()+offset, data.data()+offset+12, (uint8_t*)magnetMax.begin());
+	offset += 12;
+	std::copy(data.data()+offset, data.data()+offset+12, (uint8_t*)magnetMin.begin());
 	offset += 12;
 
 }

@@ -17,10 +17,23 @@ namespace mode{
 
 class Decent: public ModeBase {
 	static constexpr MODE mode = MODE::DECENT;
-	int16_t parachuteReleaseAlt;
+	int16_t parachuteReleaseAlt = 2000;
 	Parachute *parachute;
 	Drive *drive;
 	ElapsedTimer *elapsedTimer;
+	CommandDataType::DecentLog commandData;
+
+	enum class Sequence{
+		Decent,
+		ParachuteRelease,
+		StabilizerDeploy,
+		nextMode,
+		Last,
+	};
+
+	std::array<float, 3> sequenceDelay = {0, 5*1000, 5*1000};
+	float timeStamp = 0;
+	Sequence sequence = Sequence::Decent;
 public:
 	Decent() = default;
 	Decent(command::CommandManager *commandManager, Parachute *parachute, Drive *drive, ElapsedTimer *elapsedTimer);

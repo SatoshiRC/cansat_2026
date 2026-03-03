@@ -48,9 +48,7 @@ public:
 	virtual void onAltitudeUpdate(const uint16_t altitude){};
 
 	MODE getNextMode();
-	virtual constexpr MODE getMode(){
-		return mode;
-	}
+	virtual constexpr MODE getMode() = 0;
 };
 
 }

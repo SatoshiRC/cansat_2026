@@ -25,7 +25,7 @@ class NMEAProcessor {
 private:
     GPSPosition referencePoint_;  // 基準点
     bool referenceSet_;           // 基準点が設定されているか
-    GPSPosition lastPoint_;  // 基準点
+    GPSPosition lastPoint_;
     
     // NMEAデータをパースする内部関数
     bool parseGGA(const std::vector<uint8_t>& sentence, GPSPosition& position);

@@ -21,7 +21,6 @@ class WakeUp : public ModeBase {
 	NMEAProcessor *nmeaProcessor = nullptr;
 	AltitudeEstimation *altitudeEstimation  = nullptr;
 public:
-	WakeUp() = default;
 	WakeUp(command::CommandManager *commandManager,NMEAProcessor *nmeaProcessor,
 			AltitudeEstimation *altitudeEstimation)
 	:ModeBase(commandManager),

@@ -3,6 +3,7 @@
 
 #include "Command/Inc/CommandManager.h"
 #include "Parachute.h"
+#include "Drive.h"
 #include "State.h"
 #include "NMEA.hpp"
 #include "AltitudeEstimation.h"
@@ -16,6 +17,7 @@ extern ServoGripper parachuteServoLeft;
 extern ServoGripper parachuteServoRight;
 extern ServoGripper stabilizerServo;
 extern Parachute parachute;
+extern Drive drive;
 extern State state;
 extern NMEAProcessor nmeaProcessor;
 extern AltitudeEstimation altitudeEstimation;
@@ -54,6 +56,8 @@ void gpsTransmitEvent(CommandDataType::GPS &data);
 void imuTransmitEvent(CommandDataType::IMU &data);
 
 void saveConfingReceiveEvent();
+
+void decentLogTransmitEvent(CommandDataType::DecentLog &data);
 } /* namespace command */
 
 #endif /* COMMAND_EVENT_HPP */

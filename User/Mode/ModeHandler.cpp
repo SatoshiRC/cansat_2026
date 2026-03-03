@@ -19,6 +19,10 @@ ModeHandler::ModeHandler(command::CommandManager *commandManager, Config *config
 
 void ModeHandler::executeInloop(){
 	modeHandlers[static_cast<uint8_t>(activeMode)]->execute();
+	auto next = modeHandlers[static_cast<uint8_t>(activeMode)]->getNextMode();
+	if(next != activeMode && next != MODE::Last){
+		setMode(next);
+	}
 }
 
 void ModeHandler::onGpsUpdate(const NEDPosition &position){
@@ -36,7 +40,7 @@ void ModeHandler::registerMode(ModeBase *mode){
 }
 
 void ModeHandler::setMode(MODE mode){
-	if(mode == activeMode){
+	if(mode == activeMode || mode == MODE::Last){
 		//When the given mode and current mode are same, don't do anything.
 		return;
 	}

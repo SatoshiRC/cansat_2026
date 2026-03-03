@@ -55,8 +55,10 @@ struct Config{
 	uint8_t activeMode;
 
 	std::array<float, 3> magnetOffset;
+	std::array<float, 3> magnetMax;
+	std::array<float, 3> magnetMin;
 
-	static constexpr uint8_t len = 6*3 + 16 + 1 + 12;
+	static constexpr uint8_t len = 6*3 + 16 + 1 + 12*3;
 	std::array<uint8_t, len> convertToArray();
 	void parseArray(std::array<uint8_t, len>& data);
 

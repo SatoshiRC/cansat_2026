@@ -20,6 +20,8 @@ Drive::Drive(Motor *left, Motor *right)
 
 void Drive::enable(){
 	_isEnable = true;
+	_left->enable();
+	_right->enable();
 }
 
 void Drive::disable(){
@@ -27,7 +29,8 @@ void Drive::disable(){
 }
 
 void Drive::drive(DriveVelocity velocity){
-
+	_left->setVelocityInPercent(velocity.velocity - velocity.angularVelocity);
+	_right->setVelocityInPercent(velocity.velocity + velocity.angularVelocity);
 }
 
 void Drive::brake(){

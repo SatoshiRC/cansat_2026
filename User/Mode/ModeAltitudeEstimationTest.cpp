@@ -15,11 +15,14 @@ AltitudeEstimationTest::AltitudeEstimationTest(command::CommandManager *commandM
 }
 void AltitudeEstimationTest::onAltitudeUpdate(const uint16_t altitude){
 	commandManager->transmit(command::COMMAND_ID::Altitude);
+	HAL_Delay(2);
+	commandManager->transmit(command::COMMAND_ID::GPS);
+	HAL_Delay(2);
+	commandManager->transmit(command::COMMAND_ID::IMU);
+	HAL_Delay(2);
 }
 void AltitudeEstimationTest::onImuUpdate(const ImuOutput &imu){
-	commandManager->transmit(command::COMMAND_ID::IMU);
 }
 void AltitudeEstimationTest::onGpsUpdate(const NEDPosition &position){
-	commandManager->transmit(command::COMMAND_ID::GPS);
 }
 }

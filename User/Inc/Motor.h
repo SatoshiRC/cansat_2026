@@ -23,6 +23,8 @@ public:
 	void standby();
 	void setVelocityInPercent(float velocity);
 	void brake();
+
+	int8_t getPower();
 };
 
 #endif /* INC_MOTOR_H_ */
