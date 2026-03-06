@@ -64,7 +64,7 @@ public:
 		isGoalDetectedByCamera = isDetected;
 		directionFromCamera = direction*std::numbers::pi/180.0;
 	}
-	void onTofUpdate(uint16_t distance, bool isDetected){
+	void onTofUpdate(uint16_t distance, bool isDetected = false){
 		isGoalDetectedByTof = isDetected;
 		distanceMeasuredByTof = distance;
 	}

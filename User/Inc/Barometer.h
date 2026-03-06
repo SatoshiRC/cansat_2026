@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <functional>
 #include "LPS25HB.h"
-#include "GPIO.h"
+#include "gpio.h"
 
 struct BarometerOutput{
 	float pressure = 0;

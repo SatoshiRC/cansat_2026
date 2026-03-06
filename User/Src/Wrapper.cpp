@@ -36,7 +36,7 @@
 
 #include <array>
 
-ElapsedTimer elapsedTimer(&htim2);
+ElapsedTimer elapsedTimer(&htim5);
 State state(&elapsedTimer);
 Config config;
 
@@ -75,7 +75,7 @@ command::DecentLog decentLog;
 
 mode::WakeUp modeWakeUp(&commandManager, &nmeaProcessor, &altitudeEstimation);
 mode::Ready modeReady(&commandManager, &config);
-mode::Decent modeDecent(&commandManager, &parachute, &drive, &elapsedTimer);
+mode::Decent modeDecent(&commandManager, &parachute, &drive, &stabilizerServo, &elapsedTimer);
 mode::RemoteControl modeRemoteControl(&commandManager, &parachute, &stabilizerServo, &drive, &elapsedTimer);
 mode::AltitudeEstimationTest modeAltitudeEstimationTest(&commandManager, &altitudeEstimation);
 mode::AbsoluteNavigation modeAbsoluteNavigation(&commandManager, &elapsedTimer, &drive, &config);
@@ -83,6 +83,7 @@ mode::ModeHandler hmode(&commandManager, &config, &eeprom);
 
 std::array<uint8_t, 64> usbTxBuffer;
 std::array<uint8_t, 64> xbeeRxBuffer = {};
+std::array<uint8_t, 5> tofBuffer = {};
 
 void init(){
 	imu.disableIntPin();
@@ -116,6 +117,9 @@ void init(){
 	goal.setCallback(command::goalReceiveEvent);
 	goal.setUpdate(command::goalTransmitEvent);
 	decentLog.setCallback(command::decentLogTransmitEvent);
+	relativeNavigation.setUpdate(command::relativeNavigationTransmitEvent);
+	decentLog.setUpdate(command::decentLogTransmitEvent);
+	absoluteNavigation.setUpdate(command::absoluteNavigationTransmitEvent);
 	relativeNavigation.setUpdate(command::relativeNavigationTransmitEvent);
 	
 	//set up commands
@@ -173,6 +177,9 @@ void init(){
 	imu.setCallback(onImuUpdate);
 	imu.enableIntPin();
 
+	//start tof receive;
+	HAL_UARTEx_ReceiveToIdle_IT(&huart6, tofBuffer.data(), tofBuffer.size());
+
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
 
 }
@@ -189,7 +196,7 @@ void loop(){
 }
 
 void usbCdcReceive(uint8_t* first, uint8_t* last){
-	commandManager.receive(first, last);
+
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
@@ -227,6 +234,26 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t size){
 		//xbee callback
 		commandManager.receive(xbeeRxBuffer.data(),xbeeRxBuffer.data()+size);
 		HAL_UARTEx_ReceiveToIdle_DMA(&huart1, xbeeRxBuffer.data(), xbeeRxBuffer.size());
+	}else if(huart == &huart6){
+		uint16_t tofLen = 0xffff;
+		if(tofBuffer[0] == 'R' && tofBuffer[4] == '\r'){
+			std::string str(tofBuffer.begin()+1, tofBuffer.end()-1);
+			tofLen = std::stoi(str);
+			modeAbsoluteNavigation.onTofUpdate(tofLen);
+		}
+		HAL_UARTEx_ReceiveToIdle_IT(huart, tofBuffer.data(), tofBuffer.size());
+	}
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	if(huart == &huart6){
+		uint16_t tofLen = 0xffff;
+		if(tofBuffer[0] == 'R' && tofBuffer[4] == '\r'){
+			std::string str(tofBuffer.begin()+1, tofBuffer.end()-1);
+			tofLen = std::stoi(str);
+			modeAbsoluteNavigation.onTofUpdate(tofLen);
+		}
+		HAL_UARTEx_ReceiveToIdle_IT(huart, tofBuffer.data(), tofBuffer.size());
 	}
 }
 
@@ -234,23 +261,6 @@ void UART2_RX_Byte(){
 	UART_HandleTypeDef *huart = &huart2;
 	gps.onReceive(huart->RxXferSize - huart->RxXferCount);
 }
-
-//void command::CommandManager::forceTransmit(const COMMAND_ID id){
-////	if(isTransmitting == true){
-////		return;
-////	}
-//
-//	if(id == command::COMMAND_ID::Last){
-//		return;
-//	}
-//	uint8_t frameLen = 0;
-//	constructTransmitFrameToBuffer(id, usbTxBuffer.data(), frameLen);
-//
-//	uint8_t ret = 0;
-//	do{
-//		ret = (CDC_Transmit_FS(static_cast<uint8_t*>(usbTxBuffer.begin()), frameLen));
-//	}while(ret);
-//}
 
 
 void command::CommandManager::transmit(const COMMAND_ID id){
@@ -263,6 +273,5 @@ void command::CommandManager::transmit(const COMMAND_ID id){
 	}
 	uint8_t frameLen = 0;
 	constructTransmitFrameToBuffer(id, usbTxBuffer.data(), frameLen);
-	CDC_Transmit_FS(static_cast<uint8_t*>(usbTxBuffer.begin()), frameLen);
 	HAL_UART_Transmit_DMA(&huart1, usbTxBuffer.data(), frameLen);
 }

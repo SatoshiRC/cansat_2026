@@ -62,8 +62,8 @@ void AbsoluteNavigation::execute(){
 			_targetHeadingDirection += 2*std::numbers::pi / 7;
 			float absError = std::abs(directionError);
 			if(absError < 15*std::numbers::pi/180.0){
-				velocity.angularVelocity =
-				velocity.velocity = std::abs(velocity.angularVelocity);
+				velocity.angularVelocity = directionError*directionError/absError*5;
+				velocity.velocity = 0;
 			}
 		}
 	}else if(sequence == Sequence::relativeNavigation){
@@ -72,6 +72,7 @@ void AbsoluteNavigation::execute(){
 			sequenceTransitionTimeStamp = timer->getTimeMS();
 		}
 		if(isGoalDetectedByCamera == true){
+			_targetHeadingDirection +=  directionFromCamera;
 			velocity.angularVelocity = -directionFromCamera*baseSpeed;
 			velocity.velocity = baseSpeed;
 		}
@@ -89,21 +90,28 @@ void AbsoluteNavigation::onGpsUpdate(const NEDPosition &position){
 	if(distance < relativeNavigationStartTh && sequence == Sequence::absoluteNavigation){
 		sequence = Sequence::relativeNavigation_search0;
 		sequenceTransitionTimeStamp = timer->getTimeMS();
-		_targetHeadingDirection = std::atan2(-position.east, position.north);
+		_targetHeadingDirection = std::atan2(position.east, -position.north);
 	}else if(distance > absoluteNavigationStartTh && sequence > Sequence::absoluteNavigation){
 		sequence = Sequence::absoluteNavigation;
 		sequenceTransitionTimeStamp = timer->getTimeMS();
-		_targetHeadingDirection = std::atan2(-position.east, position.north);
+		_targetHeadingDirection = std::atan2(position.east, -position.north);
 	}
-	auto data = static_cast<command::AbsoluteNavigation*>((*commandManager)[command::COMMAND_ID::AbsoluteNavigationLog])->getData();
+	if(sequence == Sequence::absoluteNavigation){
+		_targetHeadingDirection = std::atan2(position.east, -position.north);
+	}
+	auto data = static_cast<command::RelativeNavigation*>((*commandManager)[command::COMMAND_ID::RelativeNavigationLog])->getData();
 	data.relativePositionNorth() = position.north;
 	data.relativePositionEast() = position.east;
+	data.headingDirection() = _headingDirection*180.0/std::numbers::pi;
+	data.goalDirection() = _targetHeadingDirection*180.0/std::numbers::pi;
+	static_cast<command::RelativeNavigation*>((*commandManager)[command::COMMAND_ID::RelativeNavigationLog])->setData(data);
 
-	commandManager->transmit(command::COMMAND_ID::AbsoluteNavigationLog);
+	commandManager->transmit(command::COMMAND_ID::RelativeNavigationLog);
 }
 
 void AbsoluteNavigation::onImuUpdate(const ImuOutput &imu){
 	_headingDirection = std::atan2((imu.m[0] - config->magnetOffset[0])*magnetGain[0], -(imu.m[1] - config->magnetOffset[1])*magnetGain[1]);
+	auto data = static_cast<command::RelativeNavigation*>((*commandManager)[command::COMMAND_ID::RelativeNavigationLog])->getData();
 }
 
 } /* namespace mode */

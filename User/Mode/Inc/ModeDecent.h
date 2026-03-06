@@ -20,6 +20,7 @@ class Decent: public ModeBase {
 	int16_t parachuteReleaseAlt = 2000;
 	Parachute *parachute;
 	Drive *drive;
+	ServoGripper *stabilizer;
 	ElapsedTimer *elapsedTimer;
 	CommandDataType::DecentLog commandData;
 
@@ -36,7 +37,7 @@ class Decent: public ModeBase {
 	Sequence sequence = Sequence::Decent;
 public:
 	Decent() = default;
-	Decent(command::CommandManager *commandManager, Parachute *parachute, Drive *drive, ElapsedTimer *elapsedTimer);
+	Decent(command::CommandManager *commandManager, Parachute *parachute, Drive *drive, ServoGripper *stabilizer, ElapsedTimer *elapsedTimer);
 	void initialize();
 	void execute();
 	void onAltitudeUpdate(const uint16_t altitude);

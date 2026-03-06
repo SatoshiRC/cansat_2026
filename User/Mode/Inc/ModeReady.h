@@ -9,7 +9,7 @@
 #define INC_MODEREADY_H_
 
 #include <ModeBase.h>
-#include "Config.h"
+#include "config.h"
 
 namespace mode{
 

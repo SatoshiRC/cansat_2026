@@ -40,7 +40,8 @@ void absoluteNavigationTransmitEvent(CommandDataType::AbsoluteNavigation &data){
 }
 
 void relativeNavigationTransmitEvent(CommandDataType::RelativeNavigation &data){
-
+	data.leftMotorPower() = drive.left()->getPower();
+	data.rightMotorPower() = drive.right()->getPower();
 }
 
 void servoConfigParachuteLeftTransmitEvent(CommandDataType::ServoConfig &data){

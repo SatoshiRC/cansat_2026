@@ -19,6 +19,8 @@ void WakeUp::initialize(){
 	HAL_Delay(10);
 	commandManager->transmit(command::COMMAND_ID::Goal);
 	HAL_Delay(10);
+	commandManager->transmit(command::COMMAND_ID::Mode);
+	HAL_Delay(10);
 }
 
 void WakeUp::execute(){

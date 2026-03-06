@@ -9,10 +9,11 @@
 
 namespace mode{
 
-Decent::Decent(command::CommandManager *commandManager, Parachute *parachute, Drive *drive, ElapsedTimer *elapsedTimer)
+Decent::Decent(command::CommandManager *commandManager, Parachute *parachute, Drive *drive, ServoGripper *stabilizer, ElapsedTimer *elapsedTimer)
 :ModeBase(commandManager),
  parachute(parachute),
  drive(drive),
+ stabilizer(stabilizer),
  elapsedTimer(elapsedTimer){
 
 }
@@ -22,16 +23,21 @@ void Decent::initialize(){
 	timeStamp = 0;
 	sequence = Sequence::Decent;
 	commandData = CommandDataType::DecentLog();
+	drive->brake();
+	parachute->grip();
+	stabilizer->grip();
 }
 
 void Decent::execute(){
 	if(sequence == Sequence::ParachuteRelease && timeStamp + sequenceDelay[static_cast<uint8_t>(sequence)] < elapsedTimer->getTimeMS()){
 		sequence = Sequence::StabilizerDeploy;
+		stabilizer->release();
 		DriveVelocity velo;
-		velo.velocity = 10;
+		velo.velocity = 40;
 		velo.angularVelocity = 0;
 		drive->drive(velo);
 		commandData.isStabilizerDeploied = true;
+		timeStamp = elapsedTimer->getTimeMS();
 	}else if(sequence == Sequence::StabilizerDeploy && timeStamp + sequenceDelay[static_cast<uint8_t>(sequence)] < elapsedTimer->getTimeMS()){
 		nextMode = MODE::ABSOLUTE_NAVIGATION;
 
