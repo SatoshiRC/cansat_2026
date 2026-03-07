@@ -6,7 +6,6 @@
  */
 
 #include "Wrapper.hpp"
-#include "usbd_cdc_if.h"
 #include "gpio.h"
 #include "usart.h"
 #include "tim.h"
@@ -29,6 +28,7 @@
 #include "ModeRemoteControl.h"
 #include "ModeAltitudeEstimationTest.h"
 #include "AbsoluteNavigation.h"
+#include "ModeGoal.h"
 
 #include "Command/Inc/CommandManager.h"
 #include "commandEvent.hpp"
@@ -79,11 +79,13 @@ mode::Decent modeDecent(&commandManager, &parachute, &drive, &stabilizerServo, &
 mode::RemoteControl modeRemoteControl(&commandManager, &parachute, &stabilizerServo, &drive, &elapsedTimer);
 mode::AltitudeEstimationTest modeAltitudeEstimationTest(&commandManager, &altitudeEstimation);
 mode::AbsoluteNavigation modeAbsoluteNavigation(&commandManager, &elapsedTimer, &drive, &config);
+mode::ModeGoal modeGoal(&commandManager, &drive);
 mode::ModeHandler hmode(&commandManager, &config, &eeprom);
 
 std::array<uint8_t, 64> usbTxBuffer;
 std::array<uint8_t, 64> xbeeRxBuffer = {};
-std::array<uint8_t, 5> tofBuffer = {};
+std::array<uint8_t, 10> tofBuffer = {};
+std::array<uint8_t, 6> jevoisBuffer = {};
 
 void init(){
 	imu.disableIntPin();
@@ -145,6 +147,7 @@ void init(){
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeAbsoluteNavigation));
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeRemoteControl));
 	hmode.registerMode(static_cast<mode::ModeBase*>(&modeAltitudeEstimationTest));
+	hmode.registerMode(static_cast<mode::ModeBase*>(&modeGoal));
 
 	if(config.activeMode >= static_cast<uint8_t>(mode::MODE::DECENT) && config.activeMode <= static_cast<uint8_t>(mode::MODE::GOAL)){
 		// resume operation
@@ -178,7 +181,8 @@ void init(){
 	imu.enableIntPin();
 
 	//start tof receive;
-	HAL_UARTEx_ReceiveToIdle_IT(&huart6, tofBuffer.data(), tofBuffer.size());
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart6, tofBuffer.data(), tofBuffer.size());
+	HAL_UARTEx_ReceiveToIdle_IT(&huart4, jevoisBuffer.data(), jevoisBuffer.size());
 
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
 
@@ -193,6 +197,8 @@ void loop(){
 		lps25hb.updateRawData();
 	}
 	HAL_UARTEx_ReceiveToIdle_DMA(&huart1, xbeeRxBuffer.data(), xbeeRxBuffer.size());
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart6, tofBuffer.data(), tofBuffer.size());
+	HAL_UARTEx_ReceiveToIdle_IT(&huart4, jevoisBuffer.data(), jevoisBuffer.size());
 }
 
 void usbCdcReceive(uint8_t* first, uint8_t* last){
@@ -237,11 +243,20 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t size){
 	}else if(huart == &huart6){
 		uint16_t tofLen = 0xffff;
 		if(tofBuffer[0] == 'R' && tofBuffer[4] == '\r'){
-			std::string str(tofBuffer.begin()+1, tofBuffer.end()-1);
+			std::string str(tofBuffer.begin()+1, tofBuffer.begin()+4);
+			tofLen = std::stoi(str);
+			modeAbsoluteNavigation.onTofUpdate(tofLen);
+		}else if(tofBuffer[0] == 'R' && tofBuffer[3] == '\r'){
+			std::string str(tofBuffer.begin()+1, tofBuffer.begin()+3);
 			tofLen = std::stoi(str);
 			modeAbsoluteNavigation.onTofUpdate(tofLen);
 		}
-		HAL_UARTEx_ReceiveToIdle_IT(huart, tofBuffer.data(), tofBuffer.size());
+		HAL_UARTEx_ReceiveToIdle_DMA(huart, tofBuffer.data(), tofBuffer.size());
+	}else if(huart == &huart4){
+		if(jevoisBuffer[0] == 's' && jevoisBuffer[3] == 'e'){
+			modeAbsoluteNavigation.onCameraUpdate(jevoisBuffer[2], jevoisBuffer[1]);
+		}
+		HAL_UARTEx_ReceiveToIdle_IT(huart, jevoisBuffer.data(), jevoisBuffer.size());
 	}
 }
 
@@ -253,7 +268,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 			tofLen = std::stoi(str);
 			modeAbsoluteNavigation.onTofUpdate(tofLen);
 		}
-		HAL_UARTEx_ReceiveToIdle_IT(huart, tofBuffer.data(), tofBuffer.size());
+		HAL_UARTEx_ReceiveToIdle_DMA(huart, tofBuffer.data(), tofBuffer.size());
+	}else if(huart == &huart4){
+		if(jevoisBuffer[0] == 's' && jevoisBuffer[3] == 'e'){
+			modeAbsoluteNavigation.onCameraUpdate(jevoisBuffer[2], jevoisBuffer[1]);
+		}
+		HAL_UARTEx_ReceiveToIdle_IT(huart, jevoisBuffer.data(), jevoisBuffer.size());
 	}
 }
 

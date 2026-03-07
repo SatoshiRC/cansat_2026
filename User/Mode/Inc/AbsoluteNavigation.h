@@ -24,7 +24,7 @@ class AbsoluteNavigation: public ModeBase {
 	const Config *config;
 	ElapsedTimer *timer;
 
-	static constexpr uint8_t baseSpeed = 50;
+	static constexpr uint8_t baseSpeed = 70;
 	static constexpr float relativeNavigationStartTh = 2;
 	static constexpr float absoluteNavigationStartTh = 6;
 
@@ -51,7 +51,7 @@ class AbsoluteNavigation: public ModeBase {
 	float startTimeStamp;
 	float directionFromCamera = 0;
 	bool isGoalDetectedByCamera = false;
-	uint16_t distanceMeasuredByTof = 0;
+	uint16_t distanceMeasuredByTof = 10000;
 	bool isGoalDetectedByTof = false;
 
 public:

@@ -33,24 +33,25 @@ void AbsoluteNavigation::initialize(){
 void AbsoluteNavigation::execute(){
 	DriveVelocity velocity;
 	float directionError = _targetHeadingDirection - _headingDirection;
+	while(directionError > std::numbers::pi){
+		directionError -= 2*std::numbers::pi;
+	}
+	while(directionError < -std::numbers::pi){
+		directionError += 2*std::numbers::pi;
+	}
 
-	if(timer->getTimeMS() - startTimeStamp > 20*60*1000){
+	if(timer->getTimeMS() - startTimeStamp > 10*60*1000){
 		sequence = Sequence::goal;
 	}
 	if(sequence == Sequence::absoluteNavigation){
-		while(directionError > 2*std::numbers::pi){
-			directionError -= 2*std::numbers::pi;
-		}
-		while(directionError < -2*std::numbers::pi){
-			directionError += 2*std::numbers::pi;
-		}
 		float absError = std::abs(directionError);
-		if(absError < 15*std::numbers::pi/180.0){
-			velocity.angularVelocity = directionError/absError*baseSpeed/3.0;
+		if(absError > 15*std::numbers::pi/180.0){
+			velocity.angularVelocity = directionError/absError*baseSpeed*1.2;
 		}else{
-			velocity.angularVelocity = sin(directionError*180/15)*baseSpeed/2.0;
+			velocity.angularVelocity = sin(directionError*180/15)*baseSpeed*0.6;
 			velocity.velocity = baseSpeed;
 		}
+
 	}else if(sequence < Sequence::relativeNavigation){
 		if(isGoalDetectedByCamera == true){
 			sequence = Sequence::relativeNavigation;
@@ -60,28 +61,34 @@ void AbsoluteNavigation::execute(){
 			sequence = static_cast<Sequence>(static_cast<uint8_t>(sequence) + 1);
 			sequenceTransitionTimeStamp = timer->getTimeMS();
 			_targetHeadingDirection += 2*std::numbers::pi / 7;
-			float absError = std::abs(directionError);
-			if(absError < 15*std::numbers::pi/180.0){
-				velocity.angularVelocity = directionError*directionError/absError*5;
-				velocity.velocity = 0;
+			while(_targetHeadingDirection > std::numbers::pi){
+				_targetHeadingDirection -= 2*std::numbers::pi;
 			}
 		}
+		float absError = std::abs(directionError);
+		velocity.angularVelocity = directionError*50;
+
 	}else if(sequence == Sequence::relativeNavigation){
 		if(isGoalDetectedByCamera == false){
 			sequence = Sequence::relativeNavigation_search0;
 			sequenceTransitionTimeStamp = timer->getTimeMS();
 		}
 		if(isGoalDetectedByCamera == true){
-			_targetHeadingDirection +=  directionFromCamera;
-			velocity.angularVelocity = -directionFromCamera*baseSpeed;
+			_targetHeadingDirection =  _headingDirection + directionFromCamera;
+			velocity.angularVelocity = -directionFromCamera*baseSpeed*2;
 			velocity.velocity = baseSpeed;
-		}
-		if((isGoalDetectedByTof == true && distanceMeasuredByTof < 10) ||
-				timer->getTimeMS() - sequenceTransitionTimeStamp > 300*1000){
-			sequence = Sequence::goal;
+			if((distanceMeasuredByTof < 30) ||
+				timer->getTimeMS() - sequenceTransitionTimeStamp > 60*1000){
+				sequence = Sequence::goal;
+			}
 		}
 	}
+
 	drive->drive(velocity);
+
+	if(sequence == Sequence::goal){
+		nextMode = MODE::GOAL;
+	}
 }
 
 
@@ -104,6 +111,8 @@ void AbsoluteNavigation::onGpsUpdate(const NEDPosition &position){
 	data.relativePositionEast() = position.east;
 	data.headingDirection() = _headingDirection*180.0/std::numbers::pi;
 	data.goalDirection() = _targetHeadingDirection*180.0/std::numbers::pi;
+	data.isDetectedGoalOnCamera() = isGoalDetectedByCamera;
+	data.tofDistance() = distanceMeasuredByTof;
 	static_cast<command::RelativeNavigation*>((*commandManager)[command::COMMAND_ID::RelativeNavigationLog])->setData(data);
 
 	commandManager->transmit(command::COMMAND_ID::RelativeNavigationLog);
@@ -111,7 +120,6 @@ void AbsoluteNavigation::onGpsUpdate(const NEDPosition &position){
 
 void AbsoluteNavigation::onImuUpdate(const ImuOutput &imu){
 	_headingDirection = std::atan2((imu.m[0] - config->magnetOffset[0])*magnetGain[0], -(imu.m[1] - config->magnetOffset[1])*magnetGain[1]);
-	auto data = static_cast<command::RelativeNavigation*>((*commandManager)[command::COMMAND_ID::RelativeNavigationLog])->getData();
 }
 
 } /* namespace mode */

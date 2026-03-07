@@ -31,12 +31,15 @@ void Motor::standby(){
 }
 
 void Motor::setVelocityInPercent(float velocity){
-	if(velocity >= 0){
-		__HAL_TIM_SET_COMPARE(htim, channelA, velocity*maxCounter/100);
+	if(velocity > 100){
+		velocity = 100;
+	}
+	if(velocity >= 10){
+		__HAL_TIM_SET_COMPARE(htim, channelA, velocity*maxCounter/100.0);
 		__HAL_TIM_SET_COMPARE(htim, channelB, 0);
 	}else{
-		__HAL_TIM_SET_COMPARE(htim, channelA, 0);
-		__HAL_TIM_SET_COMPARE(htim, channelB, -velocity*maxCounter/100);
+		__HAL_TIM_SET_COMPARE(htim, channelA, 10*maxCounter/100.0);
+		__HAL_TIM_SET_COMPARE(htim, channelB, 0);
 	}
 }
 
